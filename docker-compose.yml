@@ -7,7 +7,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         ports:
-            - "${PORT:-8080}:80"
+            - "${PORT:-8000}:80"
         depends_on:
             - db
         environment:
@@ -32,7 +32,7 @@ services:
             - MYSQL_USER=${DB_USERNAME:-fayez_user}
             - MYSQL_PASSWORD=${DB_PASSWORD:-fayez_password}
             - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-root_password}
-        ports:
-            - "${DB_PORT_HOST:-3306}:3306"
+        expose:
+            - "3306"
         volumes:
             - ./docker-data/mysql:/var/lib/mysql
