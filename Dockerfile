@@ -49,8 +49,7 @@ COPY composer.json composer.lock ./
 
 # Install PHP dependencies without autoloader and scripts
 ENV COMPOSER_MEMORY_LIMIT=-1
-RUN --mount=type=cache,target=/root/.composer/cache \
-    composer install --no-dev --no-interaction --no-scripts --no-autoloader
+RUN composer install --no-dev --no-interaction --no-scripts --no-autoloader --ignore-platform-reqs
 
 # Copy the rest of the application source code
 COPY . /var/www/html
