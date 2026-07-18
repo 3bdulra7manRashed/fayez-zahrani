@@ -18,6 +18,28 @@ else
     cp /var/www/html/.env.example /var/www/html/.env
 fi
 
+# Wait for MySQL if DB_CONNECTION is mysql
+if [ "$DB_CONNECTION" = "mysql" ]; then
+    echo "Waiting for MySQL database connection..."
+    php -r '
+    $host = getenv("DB_HOST") ?: "db";
+    $db = getenv("DB_DATABASE") ?: "laravel";
+    $user = getenv("DB_USERNAME") ?: "root";
+    $pass = getenv("DB_PASSWORD") ?: "";
+    for ($i = 0; $i < 30; $i++) {
+        try {
+            new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+            echo "Connected successfully to MySQL.\n";
+            exit(0);
+        } catch (PDOException $e) {
+            echo "Waiting for MySQL database connection ($i/30)...\n";
+            sleep(2);
+        }
+    }
+    exit(1);
+    '
+fi
+
 # Ensure database directory and SQLite file exist with correct permissions
 mkdir -p /var/www/html/database/data
 if [ ! -f "/var/www/html/database/data/database.sqlite" ]; then

@@ -6,12 +6,33 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        ports:
+            - "${PORT:-8080}:80"
+        depends_on:
+            - db
+        environment:
+            - APP_ENV=production
+            - APP_DEBUG=false
+            - DB_CONNECTION=${DB_CONNECTION:-mysql}
+            - DB_HOST=${DB_HOST:-db}
+            - DB_PORT=${DB_PORT:-3306}
+            - DB_DATABASE=${DB_DATABASE:-fayez_zahrani}
+            - DB_USERNAME=${DB_USERNAME:-fayez_user}
+            - DB_PASSWORD=${DB_PASSWORD:-fayez_password}
         volumes:
-            - sqlite_data:/var/www/html/database/data
-            - uploads_data:/var/www/html/public/uploads
-              - settings_data:/var/www/html/storage/app/settings
+            - ./database/data:/var/www/html/database/data
+            - ./public/uploads:/var/www/html/public/uploads
+            - ./storage/app/settings:/var/www/html/storage/app/settings
 
-volumes:
-    sqlite_data:
-    uploads_data:
-    settings_data:
+    db:
+        image: mysql:8.0
+        restart: always
+        environment:
+            - MYSQL_DATABASE=${DB_DATABASE:-fayez_zahrani}
+            - MYSQL_USER=${DB_USERNAME:-fayez_user}
+            - MYSQL_PASSWORD=${DB_PASSWORD:-fayez_password}
+            - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-root_password}
+        ports:
+            - "${DB_PORT_HOST:-3306}:3306"
+        volumes:
+            - ./docker-data/mysql:/var/lib/mysql

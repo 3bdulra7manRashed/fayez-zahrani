@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y \
 
 # Configure and install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_sqlite zip gd bcmath opcache
+    && docker-php-ext-install pdo_mysql pdo_sqlite zip gd bcmath opcache
 
 # Enable apache rewrite module
 RUN a2enmod rewrite
