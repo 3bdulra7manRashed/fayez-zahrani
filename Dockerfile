@@ -5,12 +5,16 @@ FROM composer:2.8 AS composer-builder
 
 WORKDIR /build
 
+
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN apk add --no-cache icu-dev \
+    && install-php-extensions intl
+
 # Copy dependency files first for layer caching
 COPY composer.json composer.lock ./
 
 # Install production dependencies without scripts (artisan doesn't exist yet)
 RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
-
 
 # =============================================================================
 # Stage 2: Build frontend assets
