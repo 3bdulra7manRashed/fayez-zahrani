@@ -45,7 +45,7 @@ php artisan migrate --force
 
 # Seed database if no admin users exist
 echo "Checking if database needs seeding..."
-if ADMIN_COUNT=$(php artisan tinker --execute="echo DB::table('admin_users')->count();" 2>/dev/null); then
+if ADMIN_COUNT=$(php artisan tinker --execute="echo DB::table('users')->count();" 2>/dev/null); then
     ADMIN_COUNT=$(echo "$ADMIN_COUNT" | tr -d '[:space:]')
 else
     ADMIN_COUNT=0
