@@ -26,9 +26,8 @@ COPY package.json package-lock.json ./
 RUN npm ci --prefer-offline --no-audit
 
 # Copy only files needed for the Vite build
-COPY vite.config.js postcss.config.js tailwind.config.js ./
+COPY vite.config.js ./
 COPY resources/ resources/
-COPY modules/ modules/
 
 # Tailwind content config also scans these paths for CSS class detection:
 #   - vendor/laravel/framework/.../Pagination views (pagination CSS classes)
@@ -44,7 +43,7 @@ RUN npm run build
 # =============================================================================
 # Stage 3: Production runtime
 # =============================================================================
-FROM unit:php8.2 AS runtime
+FROM unit:php8.4 AS runtime
 
 # Install PHP extensions and required libraries
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/

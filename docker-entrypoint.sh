@@ -1,11 +1,23 @@
 #!/bin/sh
 set -e
 
-# Function to wait for database connection
+# Function to wait for database connection (reads directly from environment for shell-safety)
 wait_for_db() {
     if [ "$DB_CONNECTION" = "mysql" ]; then
-        echo "Waiting for MySQL ($DB_HOST)..."
-        until php -r "try { new PDO('mysql:host=$DB_HOST;port=$DB_PORT;dbname=$DB_DATABASE', '$DB_USERNAME', '$DB_PASSWORD'); exit(0); } catch (Exception \$e) { exit(1); }"; do
+        echo "Waiting for MySQL connection ($DB_HOST)..."
+        until php -r "
+            try {
+                \$host = getenv('DB_HOST') ?: '127.0.0.1';
+                \$port = getenv('DB_PORT') ?: '3306';
+                \$db   = getenv('DB_DATABASE') ?: 'laravel';
+                \$user = getenv('DB_USERNAME') ?: 'root';
+                \$pass = getenv('DB_PASSWORD') ?: '';
+                new PDO(\"mysql:host=\$host;port=\$port;dbname=\$db\", \$user, \$pass);
+                exit(0);
+            } catch (Exception \$e) {
+                exit(1);
+            }
+        " 2>/dev/null; do
             echo "MySQL is unavailable - sleeping..."
             sleep 2
         done
@@ -17,6 +29,21 @@ wait_for_db() {
 if [ ! -f ".env" ]; then
     echo "Creating .env from .env.example..."
     cp .env.example .env
+fi
+
+# Load environment variables from .env to the shell process
+if [ -f ".env" ]; then
+    while IFS= read -r line || [ -n "$line" ]; do
+        case "$line" in
+            ""|"#"*) continue ;;
+        esac
+        clean_line=$(echo "$line" | tr -d '\r' | sed -e 's/^ *//' -e 's/ *$//')
+        if echo "$clean_line" | grep -q "="; then
+            key=$(echo "$clean_line" | cut -d '=' -f 1)
+            val=$(echo "$clean_line" | cut -d '=' -f 2- | sed -e 's/^["'\'' ]*//' -e 's/["'\'' ]*$//')
+            export "$key=$val"
+        fi
+    done < .env
 fi
 
 # 2. Fix permissions for storage and cache (Crucial for volumes)
@@ -62,7 +89,7 @@ if [ "$1" = "unitd" ]; then
     # Run Seeder if requested (or if it's a fresh install)
     if [ "${RUN_SEEDER:-false}" = "true" ]; then
         echo "Running seeders..."
-        php artisan db:seed --class=AdminUserSeeder --force
+        php artisan db:seed --force
     fi
 
     # Optimize for production
