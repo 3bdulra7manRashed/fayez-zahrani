@@ -19,8 +19,6 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libzip-dev \
-    libsqlite3-dev \
-    sqlite3 \
     libjpeg-dev \
     libfreetype6-dev \
     libicu-dev \
@@ -28,7 +26,7 @@ RUN apt-get update && apt-get install -y \
 
 # Configure and install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_sqlite pdo_mysql zip gd bcmath opcache intl mbstring
+    && docker-php-ext-install pdo_mysql zip gd bcmath opcache intl mbstring
 
 # Enable apache rewrite module
 RUN a2enmod rewrite
