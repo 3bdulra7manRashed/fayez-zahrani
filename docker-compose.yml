@@ -9,7 +9,9 @@ services:
         volumes:
             - sqlite_data:/var/www/html/database/data
             - uploads_data:/var/www/html/public/uploads
-              - settings_data:/var/www/html/storage/app/settings
+            - settings_data:/var/www/html/storage/app/settings
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
 
 volumes:
     sqlite_data:
