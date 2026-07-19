@@ -14,7 +14,7 @@ class BookSeeder extends Seeder
      */
     public function run(): void
     {
-        $jsonPath = 'C:\Users\Lenovo\.gemini\antigravity-ide\brain\8b4460d0-447a-4e9d-9983-d7963d039864\scratch\scraped_books.json';
+        $jsonPath = database_path('seeders/scraped_books.json');
         if (!file_exists($jsonPath)) {
             $this->command->error("Scraped JSON file not found!");
             return;
