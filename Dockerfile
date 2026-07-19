@@ -23,12 +23,11 @@ RUN apt-get update && apt-get install -y \
     sqlite3 \
     libjpeg-dev \
     libfreetype6-dev \
-    libicu-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql pdo_sqlite zip gd bcmath opcache intl exif
+    && docker-php-ext-install pdo_sqlite zip gd bcmath opcache
 
 # Enable apache rewrite module
 RUN a2enmod rewrite
@@ -49,7 +48,8 @@ COPY composer.json composer.lock ./
 
 # Install PHP dependencies without autoloader and scripts
 ENV COMPOSER_MEMORY_LIMIT=-1
-RUN composer install --no-dev --no-interaction --no-scripts --no-autoloader --ignore-platform-reqs
+RUN --mount=type=cache,target=/root/.composer/cache \
+    composer install --no-dev --no-interaction --no-scripts --no-autoloader
 
 # Copy the rest of the application source code
 COPY . /var/www/html
