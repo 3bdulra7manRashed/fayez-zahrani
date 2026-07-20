@@ -37,11 +37,18 @@ chmod 664 /var/www/html/database/data/database.sqlite
 # =============================================================================
 # Generate APP_KEY if not already set
 # =============================================================================
-if ! grep -q "APP_KEY=base64:" /var/www/html/.env || \
-   [ -z "$(grep 'APP_KEY' /var/www/html/.env | cut -d '=' -f2)" ]; then
+# Check if .env already has a real base64 key value
+_APP_KEY_VAL=$(grep -E '^APP_KEY=' /var/www/html/.env | cut -d '=' -f2-)
+if [ -z "$_APP_KEY_VAL" ] || [ "$_APP_KEY_VAL" = '""' ]; then
     echo "Generating application key..."
-    php artisan key:generate --force
+    # APP_KEY may already exist as a Docker env var; suppress the non-fatal error
+    php artisan key:generate --force 2>&1 || true
+else
+    echo "Application key already set. Skipping key generation."
 fi
+
+# Clear any cached config so fresh env vars are used
+php artisan config:clear --quiet 2>/dev/null || true
 
 # =============================================================================
 # Run database migrations

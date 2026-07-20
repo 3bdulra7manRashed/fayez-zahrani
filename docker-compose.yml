@@ -6,6 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
+    environment:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /var/www/html/database/data/database.sqlite
     volumes:
       - sqlite_data:/var/www/html/database/data
       - storage_public:/var/www/html/storage/app/public
