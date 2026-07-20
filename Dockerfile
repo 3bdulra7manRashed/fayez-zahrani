@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sqlite3 \
     libjpeg-dev \
     libfreetype6-dev \
+    libicu-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
