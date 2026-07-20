@@ -5,87 +5,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: laravel-blog
-    restart: unless-stopped
-    
-    # نستخدم expose بدلاً من ports لأن Coolify يدير الـ Proxy
-    expose:
-      - "80"
-      
-    environment:
-      # Coolify Magic Variable: يوجه الدومين للمنفذ 80
-      - SERVICE_FQDN_APP_80
-      
-      # App Configuration
-      - APP_ENV=${APP_ENV:-production}
-      - APP_DEBUG=${APP_DEBUG:-false}
-      - APP_KEY=${APP_KEY}
-      - APP_URL=${APP_URL}
-      
-      # Database (External MySQL)
-      - DB_CONNECTION=mysql
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_DATABASE=${DB_DATABASE:-laravel}
-      - DB_USERNAME=${DB_USERNAME:-laravel}
-      - DB_PASSWORD=${SERVICE_PASSWORD_MYSQLROOT}
-      
-      # Cache & Session
-      - CACHE_DRIVER=${CACHE_DRIVER:-file}
-      - SESSION_DRIVER=${SESSION_DRIVER:-file}
-      - QUEUE_CONNECTION=${QUEUE_CONNECTION:-database}
-      
-      # Mail Configuration
-      - MAIL_MAILER=${MAIL_MAILER:-smtp}
-      - MAIL_HOST=${MAIL_HOST}
-      - MAIL_PORT=${MAIL_PORT:-587}
-      - MAIL_USERNAME=${MAIL_USERNAME}
-      - MAIL_PASSWORD=${MAIL_PASSWORD}
-      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-tls}
-      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
-      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
-      
-      # reCAPTCHA
-      - RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY:-}
-      - RECAPTCHA_SECRET_KEY=${RECAPTCHA_SECRET_KEY:-}
-      
-      # Admin User
-      - ADMIN_NAME=${ADMIN_NAME:-}
-      - ADMIN_EMAIL=${ADMIN_EMAIL:-}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}
-      
-      # Proxy Settings
-      - TRUSTED_PROXIES=*
-      - TRUST_PROXY=true
-
+    restart: always
     volumes:
-      - storage_data:/var/www/html/storage/app/public
-      
-    # فحص الصحة على بورت 80 (الأفتراضي لـ Nginx Unit)
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
-  mysql:
-    image: mysql:8.0
-    container_name: ${COMPOSE_PROJECT_NAME:-laravel-blog}-mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
-      MYSQL_ROOT_PASSWORD: ${SERVICE_PASSWORD_MYSQLROOT}
-      MYSQL_USER: ${DB_USERNAME:-laravel}
-      MYSQL_PASSWORD: ${SERVICE_PASSWORD_MYSQLROOT}
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - sqlite_data:/var/www/html/database/data
+      - storage_public:/var/www/html/storage/app/public
 
 volumes:
-  storage_data:
-    driver: local
+  sqlite_data:
+  storage_public:
