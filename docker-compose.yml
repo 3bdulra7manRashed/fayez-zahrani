@@ -13,6 +13,8 @@ services:
       - "80"
       
     environment:
+      # Coolify Magic Variable: يوجه الدومين للمنفذ 80
+      - SERVICE_FQDN_APP_80
       
       # App Configuration
       - APP_ENV=${APP_ENV:-production}
