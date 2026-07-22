@@ -1,107 +1,109 @@
 #!/bin/sh
 set -e
 
-# Function to wait for database connection (reads directly from environment for shell-safety)
-wait_for_db() {
-    if [ "$DB_CONNECTION" = "mysql" ]; then
-        echo "Waiting for MySQL connection ($DB_HOST)..."
-        until php -r "
-            try {
-                \$host = getenv('DB_HOST') ?: '127.0.0.1';
-                \$port = getenv('DB_PORT') ?: '3306';
-                \$db   = getenv('DB_DATABASE') ?: 'laravel';
-                \$user = getenv('DB_USERNAME') ?: 'root';
-                \$pass = getenv('DB_PASSWORD') ?: '';
-                new PDO(\"mysql:host=\$host;port=\$port;dbname=\$db\", \$user, \$pass);
-                exit(0);
-            } catch (Exception \$e) {
-                exit(1);
-            }
-        " 2>/dev/null; do
-            echo "MySQL is unavailable - sleeping..."
-            sleep 2
-        done
-        echo "MySQL is up!"
-    fi
-}
-
-# 1. Ensure .env exists for Artisan CLI consistency
-if [ ! -f ".env" ]; then
-    echo "Creating .env from .env.example..."
-    cp .env.example .env
-fi
-
-# Load environment variables from .env to the shell process
-if [ -f ".env" ]; then
+# =============================================================================
+# Merge .env.example into .env (add missing keys without overwriting existing)
+# =============================================================================
+if [ -f "/var/www/html/.env" ]; then
+    echo "Merging existing .env with .env.example..."
     while IFS= read -r line || [ -n "$line" ]; do
         case "$line" in
             ""|"#"*) continue ;;
         esac
-        clean_line=$(echo "$line" | tr -d '\r' | sed -e 's/^ *//' -e 's/ *$//')
-        if echo "$clean_line" | grep -q "="; then
-            key=$(echo "$clean_line" | cut -d '=' -f 1)
-            val=$(echo "$clean_line" | cut -d '=' -f 2- | sed -e 's/^["'\'' ]*//' -e 's/["'\'' ]*$//')
-            export "$key=$val"
+        key=$(echo "$line" | cut -d '=' -f 1)
+        if ! grep -q "^${key}=" /var/www/html/.env; then
+            echo "$line" >> /var/www/html/.env
         fi
-    done < .env
+    done < /var/www/html/.env.example
+else
+    echo "Creating .env file from .env.example..."
+    cp /var/www/html/.env.example /var/www/html/.env
 fi
 
-# 2. Fix permissions for storage and cache (Crucial for volumes)
-echo "Fixing permissions..."
-mkdir -p storage/app/public \
-         storage/framework/cache \
-         storage/framework/sessions \
-         storage/framework/views \
-         storage/logs \
-         bootstrap/cache
-
-# If running as root (which we are at start), fix ownership
-if [ "$(id -u)" = "0" ]; then
-    chown -R unit:unit storage bootstrap/cache
-    chmod -R 775 storage bootstrap/cache
+# =============================================================================
+# SQLite — ensure the database directory and file exist
+# =============================================================================
+mkdir -p /var/www/html/database/data
+if [ ! -f "/var/www/html/database/data/database.sqlite" ]; then
+    echo "Creating database.sqlite file..."
+    touch /var/www/html/database/data/database.sqlite
 fi
 
-# 3. Handle Queue Worker mode
-if [ "$1" = "php" ] && [ "$2" = "artisan" ] && [ "$3" = "queue:work" ]; then
-    echo "Running as Queue Worker..."
-    wait_for_db
-    exec "$@"
+# Set permissions early so migrations can write to the DB file
+chown -R www-data:www-data /var/www/html/database
+chmod -R 775 /var/www/html/database
+chmod 664 /var/www/html/database/data/database.sqlite
+
+# =============================================================================
+# Generate APP_KEY if not already set
+# =============================================================================
+# Check if .env already has a real base64 key value
+_APP_KEY_VAL=$(grep -E '^APP_KEY=' /var/www/html/.env | cut -d '=' -f2-)
+if [ -z "$_APP_KEY_VAL" ] || [ "$_APP_KEY_VAL" = '""' ]; then
+    echo "Generating application key..."
+    # APP_KEY may already exist as a Docker env var; suppress the non-fatal error
+    php artisan key:generate --force 2>&1 || true
+else
+    echo "Application key already set. Skipping key generation."
 fi
 
-# 4. Web Application specific tasks
-if [ "$1" = "unitd" ]; then
-    echo "Running as Web Application..."
+# Clear any cached config so fresh env vars are used
+php artisan config:clear --quiet 2>/dev/null || true
 
-    wait_for_db
+# =============================================================================
+# Run database migrations
+# =============================================================================
+echo "Running database migrations..."
+php artisan migrate --force
 
-    # Generate APP_KEY if missing (Safe for production as it won't overwrite existing key)
-    if [ -z "$APP_KEY" ] && ! grep -q "APP_KEY=base64:" .env; then
-        echo "Generating application key..."
-        php artisan key:generate --force
-    fi
+# Re-create the storage symlink in case the volume mount replaced it
+php artisan storage:link --quiet 2>/dev/null || true
 
-    # Run migrations
-    if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
-        echo "Running migrations..."
-        php artisan migrate --force
-    fi
-
-    # Run Seeder if requested (or if it's a fresh install)
-    if [ "${RUN_SEEDER:-false}" = "true" ]; then
-        echo "Running seeders..."
-        php artisan db:seed --force
-    fi
-
-    # Optimize for production
-    if [ "${APP_ENV:-production}" = "production" ]; then
-        echo "Caching configuration and routes..."
-        # We use --force or similar if needed, but standard commands work
-        php artisan config:cache
-        php artisan route:cache
-        php artisan view:cache
-        php artisan event:cache
-    fi
+# =============================================================================
+# Seed database only when no admin users exist (idempotent)
+# =============================================================================
+echo "Checking if database needs seeding..."
+if ADMIN_COUNT=$(php artisan tinker --execute="echo DB::table('users')->count();" 2>/dev/null); then
+    ADMIN_COUNT=$(echo "$ADMIN_COUNT" | tr -d '[:space:]')
+else
+    ADMIN_COUNT=0
 fi
 
-echo "Starting: $@"
-exec /usr/local/bin/docker-entrypoint.sh "$@"
+if [ "$ADMIN_COUNT" = "0" ]; then
+    echo "No admin users found. Seeding database..."
+    php artisan db:seed --force
+else
+    echo "Database already has admin users ($ADMIN_COUNT). Skipping seed."
+fi
+
+# =============================================================================
+# Optimize for production
+# =============================================================================
+echo "Running package discovery..."
+php artisan package:discover --ansi
+
+echo "Caching configuration, routes, and views..."
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan event:cache
+
+# =============================================================================
+# Set final runtime permissions
+# =============================================================================
+echo "Setting final permissions..."
+chown -R www-data:www-data /var/www/html/storage
+chown -R www-data:www-data /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/database
+chown www-data:www-data /var/www/html/.env
+chmod -R 775 /var/www/html/storage
+chmod -R 775 /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/database
+chmod 664 /var/www/html/database/data/database.sqlite
+chmod 664 /var/www/html/.env
+
+# =============================================================================
+# Start Apache
+# =============================================================================
+echo "Starting Apache..."
+exec apache2-foreground

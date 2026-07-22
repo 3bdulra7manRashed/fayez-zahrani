@@ -1,119 +1,78 @@
-# =============================================================================
-# Stage 1: Install Composer dependencies
-# =============================================================================
-FROM composer:2.8 AS composer-builder
+# --- Stage 1: Build frontend assets ---
+FROM node:20-alpine AS asset-builder
 
-WORKDIR /build
+WORKDIR /app
 
+COPY package*.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci
 
-ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN apk add --no-cache icu-dev \
-    && install-php-extensions intl
-
-# Copy dependency files first for layer caching
-COPY composer.json composer.lock ./
-
-# Install production dependencies without scripts (artisan doesn't exist yet)
-RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
-
-# =============================================================================
-# Stage 2: Build frontend assets
-# =============================================================================
-FROM node:20-slim AS node-builder
-
-WORKDIR /build
-
-# Copy dependency files first for layer caching
-COPY package.json package-lock.json ./
-
-# Install npm dependencies (cached unless package files change)
-RUN npm ci --prefer-offline --no-audit
-
-# Copy only files needed for the Vite build
-COPY vite.config.js ./
-COPY resources/ resources/
-
-# Tailwind content config also scans these paths for CSS class detection:
-#   - vendor/laravel/framework/.../Pagination views (pagination CSS classes)
-#   - storage/framework/views (compiled Blade cache — empty at build time)
-COPY --from=composer-builder /build/vendor/laravel/framework/src/Illuminate/Pagination/resources/views/ \
-     vendor/laravel/framework/src/Illuminate/Pagination/resources/views/
-RUN mkdir -p storage/framework/views
-
-# Build production assets
+COPY . .
 RUN npm run build
 
+# --- Stage 2: Production image ---
+FROM php:8.4-apache
 
-# =============================================================================
-# Stage 3: Production runtime
-# =============================================================================
-FROM unit:php8.4 AS runtime
+# Install system dependencies (including SQLite)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    libzip-dev \
+    libsqlite3-dev \
+    sqlite3 \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libicu-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions and required libraries
-ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+# Configure and install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_sqlite zip gd bcmath opcache intl pcntl
 
-# Force sequential execution: wait for node-builder to finish building assets before starting extension install.
-# This prevents parallel compilation CPU/RAM spikes that can crash low-spec VMs (OOM / exit code 255).
-COPY --from=node-builder /build/package.json /tmp/node-builder-trigger
+# Allow large PDF uploads
+RUN echo "upload_max_filesize=64M\npost_max_size=64M" \
+    > /usr/local/etc/php/conf.d/uploads.ini
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
-    && install-php-extensions pcntl pdo_mysql intl zip gd exif ftp bcmath redis \
-    && docker-php-ext-enable opcache \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /tmp/node-builder-trigger
+# Enable Apache rewrite and set DocumentRoot to Laravel's public directory
+RUN a2enmod rewrite
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# OPCache configuration — production-optimized, no JIT
-# JIT is removed because:
-#   - Laravel is I/O-bound (DB, HTTP, templates), not CPU-bound
-#   - JIT reserves large memory buffers per worker process (was 256M each)
-#   - JIT adds startup overhead with no measurable benefit for web frameworks
-#   - validate_timestamps=0 is safe in containers (code doesn't change at runtime)
-RUN echo "opcache.enable=1" > /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.interned_strings_buffer=16" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.max_accelerated_files=20000" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.validate_timestamps=0" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.save_comments=1" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.enable_file_override=1" >> /usr/local/etc/php/conf.d/opcache.ini
-
-# PHP runtime configuration
-RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/php-runtime.ini \
-    && echo "upload_max_filesize=64M" >> /usr/local/etc/php/conf.d/php-runtime.ini \
-    && echo "post_max_size=64M" >> /usr/local/etc/php/conf.d/php-runtime.ini
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Create storage directories with correct permissions
-RUN mkdir -p storage/app/public storage/framework/cache storage/framework/sessions \
-             storage/framework/views storage/logs bootstrap/cache \
-    && chown -R unit:unit storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+# Install PHP dependencies (cached layer)
+COPY composer.json composer.lock ./
+ENV COMPOSER_MEMORY_LIMIT=-1
+RUN --mount=type=cache,target=/root/.composer/cache \
+    composer install --no-dev --no-interaction --no-scripts --no-autoloader
 
-# Copy Composer dependencies from builder stage
-COPY --from=composer-builder /build/vendor/ vendor/
+# Copy application source
+COPY . /var/www/html
 
-# Copy application code
-COPY . .
+# Optimise autoloader now that all files are present
+RUN composer dump-autoload --optimize --no-scripts
 
-# Copy compiled frontend assets from Node builder stage
-COPY --from=node-builder /build/public/build/ public/build/
+# Copy compiled frontend assets
+COPY --from=asset-builder /app/public/build /var/www/html/public/build
 
-# Run Composer dump-autoload now that artisan and full source exist
-COPY --from=composer-builder /usr/bin/composer /usr/local/bin/composer
-RUN composer dump-autoload --optimize --no-interaction \
-    && rm -f /usr/local/bin/composer
+# Set up storage directories, symlink, and permissions
+RUN mkdir -p /var/www/html/database/data /var/www/html/storage/app/public \
+    && php artisan storage:link \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
-# Set final permissions
-RUN chown -R unit:unit storage bootstrap/cache . \
-    && chmod -R 775 storage bootstrap/cache
+RUN chmod +x /var/www/html/docker-entrypoint.sh
 
-# Copy Nginx Unit configuration and entrypoint
-COPY unit.json /docker-entrypoint.d/unit.json
-COPY docker-entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+EXPOSE 80
 
-EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["unitd", "--no-daemon", "--control", "unix:/var/run/control.unit.sock"]
+ENTRYPOINT ["/var/www/html/docker-entrypoint.sh"]
