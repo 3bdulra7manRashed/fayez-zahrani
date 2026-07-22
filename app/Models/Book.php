@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Support\Facades\Storage;
+
 class Book extends Model
 {
     use HasFactory;
@@ -31,6 +33,14 @@ class Book extends Model
         'views_count' => 'integer',
         'downloads_count' => 'integer',
     ];
+
+    /**
+     * Get the public storage URL for the book PDF file.
+     */
+    public function getPdfUrlAttribute(): string
+    {
+        return $this->pdf_path ? Storage::url($this->pdf_path) : '';
+    }
 
     /**
      * Get the messages sent to the author for this book.

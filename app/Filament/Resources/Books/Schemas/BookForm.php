@@ -56,6 +56,7 @@ class BookForm
                 FileUpload::make('pdf_path')
                     ->label('ملف PDF للكتاب')
                     ->acceptedFileTypes(['application/pdf'])
+                    ->maxSize(20480)
                     ->directory('books')
                     ->required(),
                 TextInput::make('views_count')

@@ -40,7 +40,6 @@ class HomePage extends Component
         return view('livewire.home-page', [
             'stats' => $stats,
             'books' => $books,
-            'latestBooks' => Book::latest()->take(5)->get(),
         ])
             ->layout('components.layouts.app')
             ->title('مكتبة فايز بن سعيد الزهراني');

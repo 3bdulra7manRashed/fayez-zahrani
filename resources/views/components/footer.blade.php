@@ -26,7 +26,6 @@
 
         <div class="flex flex-col gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
             <p>© {{ now()->year }} جميع الحقوق محفوظة.</p>
-            <p class="text-[12px]">واجهة بسيطة لخدمة العلم النافع.</p>
         </div>
     </div>
 </footer>

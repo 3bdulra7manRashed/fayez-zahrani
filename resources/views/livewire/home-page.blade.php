@@ -52,18 +52,13 @@
                                 تصفح الكتب
                             </x-button>
                         </a>
-                        <a href="#latest" class="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg">
-                            <x-button variant="secondary" class="h-12 sm:h-14 px-8 sm:px-10 text-[14px] sm:text-[15px]">
-                                أحدث الإصدارات
-                            </x-button>
-                        </a>
                     </div>
                 </div>
 
                 <!-- Book Showcase Area (RTL end / Left) -->
                 <div class="lg:col-span-6 flex justify-center items-center order-1 lg:order-2">
                     <div class="relative flex items-end justify-center px-4 pt-4 pb-12 sm:pt-6 sm:pb-16 w-full max-w-[540px] transform -translate-y-4 md:-translate-y-8 lg:-translate-y-12">
-                        @forelse($latestBooks->take(4) as $book)
+                        @forelse($books->take(4) as $book)
                             @php
                                 $rotationClass = '';
                                 $marginClass = '-mx-3 sm:-mx-4 lg:-mx-5';
@@ -139,62 +134,8 @@
         </div>
     </section>
 
-    <section id="latest" class="mx-auto mt-6 max-w-[1400px] px-4 sm:px-6 lg:px-9">
-        <div class="py-12 md:py-16 text-center">
-            <span class="inline-block rounded-full border border-accent/30 bg-accent/10 px-4 py-1 text-[12px] font-bold text-accent">مختارات حديثة</span>
-            <h2 class="mt-4 text-[28px] font-extrabold leading-tight text-text-primary sm:text-[34px]">أحدث الكتب</h2>
-            <p class="mx-auto mt-3 max-w-[520px] text-[15px] leading-8 text-text-secondary">
-                آخر الإصدارات المضافة إلى المكتبة، للوصول السريع إلى أحدث مؤلفات الشيخ.
-            </p>
-        </div>
-
-        <div class="overflow-hidden rounded-xl border border-primary/15 bg-[#f3f7f0] shadow-[0_20px_48px_-38px_rgba(31,93,67,0.75)]">
-
-            <div class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                @forelse($latestBooks->take(5) as $book)
-                    <article class="book-card-hover flex min-h-[268px] flex-col rounded-lg border border-primary/10 bg-white p-4 shadow-[0_14px_30px_-26px_rgba(31,93,67,0.7)]">
-                        <span class="mb-3 self-start rounded-full bg-teal-tint px-3 py-1 text-[11px] font-bold text-primary">جديد</span>
-                        <a href="{{ route('book.show', $book->slug) }}" class="mx-auto block w-[122px] overflow-hidden rounded border border-border bg-[#f6f4ec]">
-                            @if($book->cover_path)
-                                <img src="{{ asset('storage/' . $book->cover_path) }}" alt="{{ $book->title }}" class="aspect-[3/4] w-full object-cover">
-                            @else
-                                <div class="c{{ ($book->id % 8) + 1 }} flex aspect-[3/4] items-center justify-center p-3 text-center text-xs font-bold leading-5 text-white">{{ $book->title }}</div>
-                            @endif
-                        </a>
-                        <div class="mt-3 flex flex-1 flex-col">
-                            <h3 class="line-clamp-2 min-h-[48px] text-center text-[14px] font-extrabold leading-6 text-text-primary">
-                                <a href="{{ route('book.show', $book->slug) }}">{{ $book->title }}</a>
-                            </h3>
-                            <div class="mt-2 flex items-center justify-center gap-5 text-[12px] text-text-secondary">
-                                <span>{{ number_format($book->views_count) }} قراءة</span>
-                                <span>{{ number_format($book->downloads_count) }} تحميل</span>
-                            </div>
-                            <div class="mt-auto grid grid-cols-2 gap-2 pt-3">
-                                <a href="{{ route('book.show', $book->slug) }}" class="inline-flex h-9 items-center justify-center rounded-md border border-primary/20 bg-teal-tint text-[12px] font-bold text-primary transition hover:bg-primary hover:text-white">قراءة</a>
-                                <livewire:download-button :book="$book" :key="'latest-dl-'.$book->id" />
-                            </div>
-                        </div>
-                    </article>
-                @empty
-                    <div class="col-span-full rounded-lg border border-dashed border-primary/20 bg-white/70 p-8 text-center text-text-secondary">لا توجد كتب حديثة بعد.</div>
-                @endforelse
-            </div>
-
-            <div class="border-t border-primary/10 bg-white/60 px-5 py-4 text-center">
-                <a href="#books" class="inline-flex h-11 items-center justify-center rounded-lg bg-primary px-6 text-[14px] font-bold text-white shadow-[0_12px_24px_-18px_rgba(31,93,67,0.85)] transition hover:bg-primary-hover">
-                    الانتقال إلى كل الكتب
-                </a>
-            </div>
-        </div>
-    </section>
-
-    {{-- ── Visual Break: Full-width spacer ── --}}
-    <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-9 pt-14 pb-2" aria-hidden="true">
-        <div class="h-px bg-gradient-to-l from-transparent via-primary/20 to-transparent"></div>
-    </div>
-
     {{-- ── All Books: Library Section Header ── --}}
-    <section id="books" class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-9">
+    <section id="books" class="mx-auto mt-6 max-w-[1400px] px-4 sm:px-6 lg:px-9">
         <div class="py-12 md:py-16 text-center">
             <span class="inline-block rounded-full border border-accent/30 bg-accent/10 px-4 py-1 text-[12px] font-bold text-accent">المكتبة الكاملة</span>
             <h2 class="mt-4 text-[28px] font-extrabold leading-tight text-text-primary sm:text-[34px]">

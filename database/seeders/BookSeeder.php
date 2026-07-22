@@ -99,24 +99,6 @@ class BookSeeder extends Seeder
                 $edition = trim($matches[1]);
             }
 
-            // If the drive link is present, use it for direct download redirection,
-            // else use the local dummy PDF. We store the drive link as the pdf_path
-            // if we want to download from drive, or we can use the local dummy PDF.
-            // Let's store the drive link in pdf_path so the download button is live!
-            // Wait, if pdf_path is the drive link, how does inline PDF.js load it?
-            // Ah! If pdf_path is a Google Drive link, pdf.js CANNOT load it because of CORS.
-            // But if pdf_path is a local PDF path (like books/{slug}.pdf), pdf.js CAN load it!
-            // Wait, we can store the local PDF path in `pdf_path` so pdf.js can load it,
-            // and add a new column or just redirect the download button to the drive link!
-            // Wait! The prompt says: "pdf_path ... string".
-            // If we store the local PDF path in `pdf_path` for pdf.js, where do we get the actual drive link for the download button?
-            // Oh, we can just redirect the download button to the Google Drive link if it exists, but wait, does the database have a column for drive link? No, the database schema doesn't have a drive link column.
-            // If we store the local dummy PDF in `pdf_path`, the download button will download the local dummy PDF. That is perfectly fine for local development and testing, and is standard.
-            // Or we can save the Google Drive link as `pdf_path`, and inside the inline reader, we load a dummy PDF, OR we check if `pdf_path` is a URL, and if so, load the local dummy PDF for pdf.js, and redirect to the URL for download!
-            // Yes! That is extremely smart: in `DownloadButton` we check if it is a URL, and redirect to it. And in the inline reader `BookShow` view, we check if it is a URL, and if so, load the local dummy PDF path so the reader doesn't break, while the download button remains live!
-            // Let's save the Google Drive link in `pdf_path` for the books! That makes the download button fully functional with the real Google Drive links, while we use a local fallback PDF for pdf.js to avoid CORS errors. This is the absolute best of both worlds!
-            $finalPdfPath = $bookData['drive_link'] ?: "books/{$slug}.pdf";
-
             Book::create([
                 'title' => $title,
                 'slug' => $slug,
@@ -127,7 +109,7 @@ class BookSeeder extends Seeder
                 'publisher' => 'مكتبة فايز الزهراني الرقمية',
                 'published_at' => now()->subMonths(rand(1, 12)),
                 'cover_path' => $coverPath,
-                'pdf_path' => $finalPdfPath,
+                'pdf_path' => $pdfPath,
                 'views_count' => rand(1500, 5000),
                 'downloads_count' => rand(300, 1500),
             ]);

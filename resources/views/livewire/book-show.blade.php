@@ -1,7 +1,5 @@
 @php
-    $readerPdfPath = filter_var($book->pdf_path, FILTER_VALIDATE_URL)
-        ? 'books/' . $book->slug . '.pdf'
-        : $book->pdf_path;
+    $readerPdfPath = $book->pdf_url;
 
     $meta = [
         ['label' => 'الطبعة', 'value' => $book->edition],
@@ -13,6 +11,10 @@
 @endphp
 
 <div class="bg-[#fbfcf8] pb-12">
+    <!-- Local PDF.js Static Build -->
+    <script src="{{ asset('vendor/pdfjs/pdf.min.js') }}"></script>
+
+    <!-- Book Details Section -->
     <section class="mx-auto max-w-[1360px] px-4 py-6 sm:px-6 lg:px-9">
         <a href="{{ route('home') }}" class="mb-5 inline-flex items-center gap-2 rounded-md text-[14px] font-bold text-text-secondary transition hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4 rotate-180" aria-hidden="true">
@@ -22,6 +24,7 @@
         </a>
 
         <div class="grid gap-4 lg:grid-cols-[330px_1fr]">
+            <!-- Sidebar: Cover & Quick Stats -->
             <aside class="rounded-xl border border-border bg-white p-5 shadow-[0_18px_42px_-36px_rgba(31,93,67,0.75)]">
                 <div class="mx-auto w-full max-w-[230px] overflow-hidden rounded-lg border border-border bg-[#f6f4ec] shadow-[0_22px_36px_-30px_rgba(31,93,67,0.75)]">
                     @if($book->cover_path)
@@ -57,6 +60,7 @@
                 </a>
             </aside>
 
+            <!-- Book Information Column -->
             <article class="rounded-xl border border-border bg-white p-6 shadow-[0_18px_42px_-36px_rgba(31,93,67,0.75)] lg:p-8">
                 <div class="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-5">
                     <div>
@@ -84,47 +88,64 @@
         </div>
     </section>
 
+    <!-- PDF Reader Section -->
     <section id="reader" class="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-9">
-        <div class="overflow-hidden rounded-xl border border-border bg-white shadow-[0_18px_42px_-36px_rgba(31,93,67,0.75)]">
-            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-white p-4">
-                <h2 class="flex items-center gap-2 text-[18px] font-extrabold text-primary">
-                    تصفح الكتاب مباشرة
+        <div class="mb-3 flex items-center justify-between">
+            <h2 class="flex items-center gap-2 text-[18px] font-extrabold text-primary">
+                تصفح الكتاب مباشرة
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5" aria-hidden="true">
+                    <path d="M2 4h7a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 4h-7a4 4 0 0 1 4 4v12a3 3 0 0 1 3-3h8z"/>
+                </svg>
+            </h2>
+        </div>
+
+        <x-pdf-reader :url="$readerPdfPath" :title="$book->title" />
+    </section>
+
+    <!-- Related Books Section -->
+    @if(isset($relatedBooks) && $relatedBooks->isNotEmpty())
+        <section id="related-books" class="mx-auto mt-8 max-w-[1360px] px-4 sm:px-6 lg:px-9">
+            <div class="rounded-xl border border-border bg-white p-6 shadow-[0_18px_42px_-36px_rgba(31,93,67,0.75)]">
+                <h2 class="mb-5 flex items-center gap-2 text-[18px] font-extrabold text-primary">
+                    كتب ذات صلة
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5" aria-hidden="true">
                         <path d="M2 4h7a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/>
                         <path d="M22 4h-7a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h8z"/>
                     </svg>
                 </h2>
-                <span class="text-[13px] text-text-secondary">{{ $book->title }}</span>
-            </div>
 
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
-            <div x-data="pdfViewer('{{ asset('storage/' . $readerPdfPath) }}')" x-init="init()" class="bg-[#f4f1e8]">
-                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-teal-tint p-3 text-primary">
-                    <div class="flex items-center gap-2">
-                        <button @click="prevPage" :disabled="pageNum <= 1" class="inline-flex h-9 items-center justify-center rounded-md border border-primary/20 bg-white px-4 text-[12px] font-bold transition hover:bg-primary hover:text-white disabled:pointer-events-none disabled:opacity-40">السابق</button>
-                        <button @click="nextPage" :disabled="pageNum >= numPages" class="inline-flex h-9 items-center justify-center rounded-md border border-primary/20 bg-white px-4 text-[12px] font-bold transition hover:bg-primary hover:text-white disabled:pointer-events-none disabled:opacity-40">التالي</button>
-                    </div>
-                    <div class="text-[13px] font-bold">
-                        الصفحة <span x-text="pageNum"></span> من <span x-text="numPages || '-'"></span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button @click="zoomOut" class="flex h-9 w-9 items-center justify-center rounded-md border border-primary/20 bg-white text-lg font-bold transition hover:bg-primary hover:text-white" aria-label="تصغير">-</button>
-                        <button @click="zoomIn" class="flex h-9 w-9 items-center justify-center rounded-md border border-primary/20 bg-white text-lg font-bold transition hover:bg-primary hover:text-white" aria-label="تكبير">+</button>
-                    </div>
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    @foreach($relatedBooks as $related)
+                        <article class="book-card-hover flex flex-col rounded-lg border border-border bg-white p-3 shadow-xs">
+                            <a href="{{ route('book.show', $related->slug) }}" class="mx-auto block w-[112px] overflow-hidden rounded border border-border bg-[#f6f4ec]">
+                                @if($related->cover_path)
+                                    <img src="{{ asset('storage/' . $related->cover_path) }}" alt="{{ $related->title }}" class="aspect-[3/4] w-full object-cover">
+                                @else
+                                    <div class="c{{ ($related->id % 8) + 1 }} flex aspect-[3/4] items-center justify-center p-3 text-center text-xs font-bold leading-5 text-white">
+                                        {{ $related->title }}
+                                    </div>
+                                @endif
+                            </a>
+                            <div class="mt-3 flex flex-1 flex-col">
+                                <h3 class="line-clamp-2 min-h-[48px] text-center text-[14px] font-extrabold leading-6 text-text-primary">
+                                    <a href="{{ route('book.show', $related->slug) }}" class="hover:text-primary transition">{{ $related->title }}</a>
+                                </h3>
+                                <div class="mt-auto pt-3">
+                                    <a href="{{ route('book.show', $related->slug) }}" class="inline-flex h-9 w-full items-center justify-center rounded-md border border-primary/20 bg-teal-tint text-[12px] font-bold text-primary transition hover:bg-primary hover:text-white">
+                                        عرض التفاصيل
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
                 </div>
-
-                <div class="relative flex min-h-[520px] justify-center overflow-auto p-4 sm:p-8" style="max-height: 780px;">
-                    <div x-show="loading" class="absolute inset-0 z-10 flex items-center justify-center bg-[#fbfcf8]/90 text-[14px] font-bold text-primary">
-                        جار تحميل الكتاب...
-                    </div>
-                    <canvas id="pdf-canvas" class="max-w-full border border-border bg-white shadow-[0_18px_45px_-28px_rgba(31,93,67,0.65)]"></canvas>
-                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
-    <section id="contact" class="mx-auto mt-4 max-w-[1360px] px-4 sm:px-6 lg:px-9">
+    <!-- Message Form Section -->
+    <section id="contact" class="mx-auto mt-8 max-w-[1360px] px-4 sm:px-6 lg:px-9">
         <div class="rounded-xl border border-border bg-white p-5 shadow-[0_18px_42px_-36px_rgba(31,93,67,0.75)]">
             <h2 class="mb-4 flex items-center gap-2 text-[18px] font-extrabold text-primary">
                 مراسلة حول هذا الكتاب
@@ -136,82 +157,3 @@
         </div>
     </section>
 </div>
-
-@push('scripts')
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('pdfViewer', (url) => ({
-                url,
-                pdfDoc: null,
-                pageNum: 1,
-                numPages: 0,
-                scale: window.innerWidth < 640 ? 0.8 : 1.25,
-                ctx: null,
-                canvas: null,
-                loading: true,
-
-                init() {
-                    if (!window.pdfjsLib) {
-                        this.loading = false;
-                        return;
-                    }
-
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                    this.canvas = document.getElementById('pdf-canvas');
-                    this.ctx = this.canvas.getContext('2d');
-
-                    pdfjsLib.getDocument(this.url).promise
-                        .then((pdfDoc) => {
-                            this.pdfDoc = pdfDoc;
-                            this.numPages = pdfDoc.numPages;
-                            this.renderPage(this.pageNum);
-                        })
-                        .catch(() => {
-                            this.loading = false;
-                        });
-                },
-
-                renderPage(num) {
-                    if (!this.pdfDoc) return;
-
-                    this.loading = true;
-                    this.pdfDoc.getPage(num).then((page) => {
-                        const viewport = page.getViewport({ scale: this.scale });
-                        this.canvas.height = viewport.height;
-                        this.canvas.width = viewport.width;
-
-                        page.render({
-                            canvasContext: this.ctx,
-                            viewport,
-                        }).promise.then(() => {
-                            this.loading = false;
-                        });
-                    });
-                },
-
-                prevPage() {
-                    if (this.pageNum <= 1) return;
-                    this.pageNum--;
-                    this.renderPage(this.pageNum);
-                },
-
-                nextPage() {
-                    if (this.pageNum >= this.numPages) return;
-                    this.pageNum++;
-                    this.renderPage(this.pageNum);
-                },
-
-                zoomIn() {
-                    this.scale += 0.2;
-                    this.renderPage(this.pageNum);
-                },
-
-                zoomOut() {
-                    if (this.scale <= 0.6) return;
-                    this.scale -= 0.2;
-                    this.renderPage(this.pageNum);
-                },
-            }));
-        });
-    </script>
-@endpush
