@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create an admin user for Filament login
+        // Create an admin user
         User::factory()->create([
             'name' => 'فايز الزهراني',
             'email' => 'admin@example.com',
