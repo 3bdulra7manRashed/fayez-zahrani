@@ -5,14 +5,12 @@ namespace App\Livewire;
 use App\Mail\BookMessageNotification;
 use App\Models\Book;
 use App\Models\BookMessage;
-use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
-use DanHarrin\LivewireRateLimiting\WithRateLimiting;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
 
 class BookMessageForm extends Component
 {
-    use WithRateLimiting;
 
     public Book $book;
     public string $name = '';
@@ -37,12 +35,14 @@ class BookMessageForm extends Component
 
     public function submit(): void
     {
-        try {
-            $this->rateLimit(3, 60);
-        } catch (TooManyRequestsException $exception) {
+        $throttleKey = 'send-message:' . request()->ip();
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
             $this->addError('message', 'لقد تجاوزت الحد المسموح به من المحاولات. يرجى الانتظار دقيقة قبل المحاولة مجددا.');
             return;
         }
+
+        RateLimiter::hit($throttleKey, 60);
 
         if ($this->honeypot !== '') {
             $this->successMessage = 'تم إرسال رسالتك بنجاح! شكراً لك.';
