@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,8 +12,8 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-background text-text-primary font-sans antialiased" x-data="{ sidebarOpen: false }">
-    <div class="min-h-screen flex bg-background">
+<body class="h-full bg-background text-text-primary font-sans antialiased overflow-hidden" x-data="{ sidebarOpen: false }">
+    <div class="h-screen flex overflow-hidden bg-background">
         <!-- Mobile Sidebar Overlay Backdrop -->
         <div x-show="sidebarOpen" 
             x-transition:enter="transition-opacity ease-linear duration-200"
@@ -27,12 +27,13 @@
             x-cloak></div>
 
         <!-- Sidebar Navigation Drawer -->
-        <aside class="fixed inset-y-0 right-0 z-sticky w-72 bg-surface border-l border-border flex flex-col justify-between transform transition-transform duration-250 ease-in-out lg:translate-x-0 lg:static lg:z-auto"
+        <aside class="fixed inset-y-0 right-0 z-sticky w-72 h-screen bg-surface border-l border-border flex flex-col justify-between transform transition-transform duration-250 ease-in-out shrink-0 lg:translate-x-0 lg:static lg:z-auto"
             :class="sidebarOpen ? 'translate-x-0 shadow-modal' : 'translate-x-full lg:translate-x-0'">
             
-            <!-- Sidebar Header / Branding -->
-            <div>
-                <div class="h-20 px-6 border-b border-border flex items-center justify-between">
+            <!-- Top Section: Logo, Branding & Nav Links (Scrolls independently if needed) -->
+            <div class="flex-1 flex flex-col min-h-0 overflow-y-auto">
+                <!-- Sidebar Header / Branding -->
+                <div class="h-20 px-6 border-b border-border flex items-center justify-between shrink-0">
                     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-bold text-lg shadow-card">
                             ف
@@ -52,7 +53,7 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <nav class="p-4 space-y-1.5">
+                <nav class="p-4 space-y-1.5 flex-1">
                     <!-- Dashboard Link -->
                     <a href="{{ route('admin.dashboard') }}"
                         class="flex items-center gap-3 px-4 py-3 rounded-xl text-body-small font-semibold transition-all duration-150 {{ request()->routeIs('admin.dashboard') ? 'bg-primary text-white shadow-card' : 'text-text-secondary hover:text-primary hover:bg-primary/5' }}">
@@ -99,8 +100,8 @@
                 </nav>
             </div>
 
-            <!-- Sidebar Footer / Authenticated User Profile & Logout -->
-            <div class="p-4 border-t border-border bg-background/50">
+            <!-- Bottom Section: User Profile & Logout (Pinned to bottom) -->
+            <div class="p-4 border-t border-border bg-background/50 shrink-0">
                 <div class="flex items-center justify-between gap-3 mb-3 px-2">
                     <div class="flex items-center gap-3 overflow-hidden">
                         <div class="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold shrink-0">
@@ -117,7 +118,7 @@
                 <form action="{{ route('admin.logout') }}" method="POST">
                     @csrf
                     <button type="submit"
-                        class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-danger/20 text-danger bg-danger/5 hover:bg-danger hover:text-white text-body-small font-semibold transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-danger/30">
+                        class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-danger/20 text-danger bg-danger/5 hover:bg-danger hover:text-white text-body-small font-semibold transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-danger/30 cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                         </svg>
@@ -127,10 +128,10 @@
             </div>
         </aside>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- Main Content Area (Independent Scroll Container) -->
+        <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
             <!-- Topbar Header -->
-            <header class="h-20 bg-surface border-b border-border flex items-center justify-between px-4 sm:px-6 lg:px-8">
+            <header class="h-20 bg-surface border-b border-border flex items-center justify-between px-4 sm:px-6 lg:px-8 shrink-0">
                 <div class="flex items-center gap-4">
                     <!-- Mobile Hamburger Menu Button -->
                     <button @click="sidebarOpen = true" class="lg:hidden text-text-primary hover:text-primary focus:outline-none p-2 rounded-lg border border-border bg-background">
@@ -155,7 +156,7 @@
                 </div>
             </header>
 
-            <!-- Page Main Content Slot -->
+            <!-- Page Main Content Slot (Independent scroll viewport) -->
             <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
                 {{ $slot }}
             </main>
