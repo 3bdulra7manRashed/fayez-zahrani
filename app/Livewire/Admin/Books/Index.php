@@ -56,10 +56,10 @@ class Index extends Component
         ];
 
         if ($this->editingBookId) {
-            $rules['new_cover'] = 'nullable|image|max:2048';
+            $rules['new_cover'] = 'nullable|image|max:5120';
             $rules['new_pdf'] = 'nullable|mimes:pdf|max:51200';
         } else {
-            $rules['new_cover'] = 'required|image|max:2048';
+            $rules['new_cover'] = 'required|image|max:5120';
             $rules['new_pdf'] = 'required|mimes:pdf|max:51200';
         }
 
@@ -73,7 +73,7 @@ class Index extends Component
         'description.required' => 'وصف الكتاب مطلوب.',
         'new_cover.required' => 'صورة غلاف الكتاب مطلوبة.',
         'new_cover.image' => 'يجب أن يكون الغلاف صورة صحيحة.',
-        'new_cover.max' => 'حجم صورة الغلاف يجب أن لا يتجاوز 2 ميجابايت.',
+        'new_cover.max' => 'حجم صورة الغلاف يجب أن لا يتجاوز 5 ميجابايت.',
         'new_pdf.required' => 'ملف الكتاب (PDF) مطلوب.',
         'new_pdf.mimes' => 'يجب أن يكون الملف بصيغة PDF.',
         'new_pdf.max' => 'حجم ملف PDF يجب أن لا يتجاوز 50 ميجابايت.',
