@@ -249,7 +249,7 @@
                             <label class="block text-body-small font-medium text-text-primary mb-1.5">
                                 صورة الغلاف {{ $editingBookId ? '(اختياري للحدث)' : '*' }}
                             </label>
-                            <input wire:model="new_cover" type="file" accept="image/*"
+                            <input wire:model="new_cover" type="file" accept="image/webp,image/jpeg,image/png,image/jpg"
                                 class="w-full px-3 py-2 rounded-xl border border-border bg-background text-text-primary text-caption file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-caption file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
                             @error('new_cover') <p class="mt-1 text-caption text-danger">{{ $message }}</p> @enderror
 
@@ -294,15 +294,22 @@
                             class="px-5 py-2.5 rounded-xl border border-border text-text-secondary hover:bg-background text-body-small font-semibold transition-colors focus:outline-none">
                             إلغاء
                         </button>
-                        <button type="submit" wire:loading.attr="disabled"
+                        <button type="submit" wire:loading.attr="disabled" wire:target="save, new_cover, new_pdf"
                             class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-body-small font-semibold shadow-card transition-all focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 flex items-center gap-2">
-                            <span wire:loading.remove>حفظ بيانات الكتاب</span>
-                            <span wire:loading class="flex items-center gap-2">
+                            <span wire:loading.remove wire:target="save, new_cover, new_pdf">حفظ بيانات الكتاب</span>
+                            <span wire:loading wire:target="save" class="flex items-center gap-2">
                                 <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                                 جاري الحفظ...
+                            </span>
+                            <span wire:loading wire:target="new_cover, new_pdf" class="flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                جاري رفع الملفات...
                             </span>
                         </button>
                     </div>
