@@ -56,7 +56,7 @@
                 <nav class="p-4 space-y-1.5 flex-1">
                     <!-- Dashboard Link -->
                     <a href="{{ route('admin.dashboard') }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-body-small font-semibold transition-all duration-150 {{ request()->routeIs('admin.dashboard') ? 'bg-primary text-white shadow-card' : 'text-text-secondary hover:text-primary hover:bg-primary/5' }}">
+                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-body-small font-semibold transition-all duration-150 {{ request()->routeIs('admin.dashboard') ? 'bg-primary text-white border-r-4 border-[#1F5D43] shadow-card font-bold' : 'text-text-secondary hover:text-primary hover:bg-primary/5' }}">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
@@ -65,7 +65,7 @@
 
                     <!-- Books Management Link -->
                     <a href="{{ route('admin.books.index') }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-body-small font-semibold transition-all duration-150 {{ request()->routeIs('admin.books*') ? 'bg-primary text-white shadow-card' : 'text-text-secondary hover:text-primary hover:bg-primary/5' }}">
+                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-body-small font-semibold transition-all duration-150 {{ request()->routeIs('admin.books*') ? 'bg-primary text-white border-r-4 border-[#1F5D43] shadow-card font-bold' : 'text-text-secondary hover:text-primary hover:bg-primary/5' }}">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
@@ -74,19 +74,19 @@
 
                     <!-- Messages Management Link -->
                     <a href="{{ route('admin.messages.index') }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-body-small font-semibold transition-all duration-150 {{ request()->routeIs('admin.messages*') ? 'bg-primary text-white shadow-card' : 'text-text-secondary hover:text-primary hover:bg-primary/5' }}">
+                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-body-small font-semibold transition-all duration-150 {{ request()->routeIs('admin.messages*') ? 'bg-primary text-white border-r-4 border-[#1F5D43] shadow-card font-bold' : 'text-text-secondary hover:text-primary hover:bg-primary/5' }}">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
                         <span>الرسائل الواردة</span>
                     </a>
 
-                    <div class="pt-4 border-t border-border mt-4">
+                    <div class="border-t border-slate-100 my-4 pt-4">
                         <!-- Visit Public Site Link -->
                         <a href="{{ route('home') }}" target="_blank" rel="noopener noreferrer"
-                            class="flex items-center justify-between px-4 py-3 rounded-xl text-body-small font-semibold text-text-secondary hover:text-primary hover:bg-primary/5 transition-all duration-150">
-                            <div class="flex items-center gap-3">
-                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="flex items-center justify-between px-4 py-2.5 rounded-xl border border-slate-200 text-text-secondary hover:text-primary hover:border-primary/40 hover:bg-primary/5 text-body-small font-semibold transition-all duration-150 shadow-xs">
+                            <div class="flex items-center gap-2.5">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.6 9h16.8M3.6 15h16.8"/>
                                 </svg>
@@ -140,19 +140,12 @@
                         </svg>
                     </button>
 
-                    <!-- Page Title / Breadcrumb -->
+                    <!-- Single Clear Page Title -->
                     <div>
-                        <h1 class="text-heading-s sm:text-heading-m text-text-primary">
+                        <h1 class="text-heading-s sm:text-heading-m text-text-primary font-extrabold">
                             {{ $header ?? $title ?? 'لوحة التحكم' }}
                         </h1>
                     </div>
-                </div>
-
-                <!-- Topbar Actions / User Badge -->
-                <div class="flex items-center gap-3">
-                    <span class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-caption font-semibold bg-primary/10 text-primary border border-primary/20">
-                        حساب الإدارة
-                    </span>
                 </div>
             </header>
 
