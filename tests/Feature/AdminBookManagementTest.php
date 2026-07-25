@@ -122,4 +122,15 @@ class AdminBookManagementTest extends TestCase
         Storage::disk('public')->assertMissing($cover);
         Storage::disk('public')->assertMissing($pdf);
     }
+
+    public function test_arabic_slug_generation(): void
+    {
+        $user = User::factory()->create();
+
+        $component = Livewire::actingAs($user)
+            ->test(Index::class)
+            ->set('title', 'كتاب الفقه الإسلامي وأدلته!');
+
+        $this->assertEquals('كتاب-الفقه-الإسلامي-وأدلته', $component->get('slug'));
+    }
 }

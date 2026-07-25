@@ -88,17 +88,17 @@ class Index extends Component
     public function updatedTitle(string $value): void
     {
         if (!$this->editingBookId || empty($this->slug)) {
-            $this->slug = $this->generateSlug($value);
+            $this->slug = $this->generateArabicSlug($value);
         }
     }
 
-    private function generateSlug(string $title): string
+    public function generateArabicSlug(string $title): string
     {
-        $slug = Str::slug($title);
-        if (empty($slug)) {
-            $slug = preg_replace('/[^\p{L}\p{N}]+/u', '-', mb_strtolower(trim($title)));
-            $slug = trim($slug, '-');
-        }
+        $slug = preg_replace('/\s+/u', '-', trim($title));
+        $slug = preg_replace('/[^\p{L}\p{N}\-]+/u', '', $slug);
+        $slug = preg_replace('/-+/u', '-', $slug);
+        $slug = trim($slug, '-');
+
         return $slug ?: 'book-' . time();
     }
 
@@ -149,7 +149,7 @@ class Index extends Component
     public function save(): void
     {
         if (empty($this->slug)) {
-            $this->slug = $this->generateSlug($this->title);
+            $this->slug = $this->generateArabicSlug($this->title);
         }
 
         $this->validate();
