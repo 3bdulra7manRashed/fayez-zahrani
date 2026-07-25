@@ -6,7 +6,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
+#[Layout('components.layouts.admin')]
 #[Title('لوحة التحكم - مكتبة فايز بن سعيد الزهراني')]
 class Dashboard extends Component
 {
