@@ -60,7 +60,7 @@
                 <h1 class="text-2xl md:text-4xl font-black text-slate-900 leading-tight mb-4">{{ $book->title }}</h1>
 
                 @if($book->description)
-                    <p class="whitespace-pre-line text-slate-700 text-sm md:text-base leading-relaxed md:leading-loose text-justify font-medium mb-6">{{ $book->description }}</p>
+                    <p class="text-slate-700 text-sm md:text-base leading-relaxed md:leading-loose text-justify font-medium mb-6 whitespace-pre-line">{{ $book->description }}</p>
                 @endif
 
                 <hr class="border-slate-200/80 my-6">
