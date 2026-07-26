@@ -24,21 +24,8 @@ Route::get('/books/{book}/download', function (Book $book) {
     return Storage::disk('public')->download($book->pdf_path, $filename);
 })->name('books.download');
 
-// Stream PDF inline with CORS headers for PDF.js frontend viewer
-Route::get('/books/{book}/stream', function (Book $book) {
-    if (!$book->pdf_path || !Storage::disk('public')->exists($book->pdf_path)) {
-        abort(404);
-    }
-    $path = Storage::disk('public')->path($book->pdf_path);
-    return response()->file($path, [
-        'Content-Type' => 'application/pdf',
-        'Content-Disposition' => 'inline; filename="' . rawurlencode($book->title ?: 'book') . '.pdf"',
-        'Accept-Ranges' => 'bytes',
-        'Access-Control-Allow-Origin' => '*',
-        'Access-Control-Allow-Methods' => 'GET, OPTIONS',
-        'Cache-Control' => 'no-cache, private',
-    ]);
-})->name('books.stream');
+// Stream PDF inline for PDF.js frontend viewer
+Route::get('/books/{book}/stream', [\App\Http\Controllers\BookController::class, 'stream'])->name('books.stream');
 
 Route::redirect('/login', '/admin/login')->name('login');
 
