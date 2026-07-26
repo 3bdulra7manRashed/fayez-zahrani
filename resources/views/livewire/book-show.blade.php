@@ -83,32 +83,43 @@
         </div>
     </section>
 
-    <!-- Native Browser PDF Viewer (Zero JS / Direct Stream) -->
+    <!-- Universal Inline PDF Viewer -->
     <section id="reader" class="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-9">
         @if($book->pdf_path && $book->pdf_url)
-            <div class="my-6 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+            <div class="my-6 bg-slate-50 p-4 md:p-6 rounded-2xl border border-slate-200">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <h3 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
                         <span>📖</span> تصفح الكتاب مباشرة
                     </h3>
-                    <a href="{{ route('books.download', $book->id) }}" class="px-5 py-2.5 bg-[#1F5D43] text-white text-sm font-bold rounded-xl hover:bg-[#184C37] transition shadow-sm">
+                    <a href="{{ route('books.download', $book->id) }}" class="px-4 py-2 md:px-5 md:py-2.5 bg-[#1F5D43] text-white text-xs md:text-sm font-bold rounded-xl hover:bg-[#184C37] transition shadow-sm">
                         تحميل النسخة PDF
                     </a>
                 </div>
 
-                <!-- Native Browser PDF Viewer (Zero JS / Direct Stream) -->
-                <div class="w-full h-[750px] rounded-xl overflow-hidden border border-slate-200 bg-white shadow-inner">
-                    <iframe 
-                        src="{{ route('books.stream', $book->id) }}#toolbar=1&navpanes=0" 
-                        class="w-full h-full border-0"
-                        type="application/pdf">
-                        <div class="p-8 text-center text-slate-600">
-                            <p class="mb-4 font-bold">متصفحك لا يدعم المعاينة المباشرة داخل الصفحة.</p>
-                            <a href="{{ route('books.stream', $book->id) }}" target="_blank" class="px-6 py-3 bg-[#1F5D43] text-white rounded-xl font-bold inline-block shadow">
-                                فتح الكتاب في نافذة جديدة ↗
-                            </a>
-                        </div>
-                    </iframe>
+                <!-- Universal Inline PDF Viewer -->
+                <div class="w-full h-[550px] md:h-[750px] rounded-xl overflow-hidden border border-slate-200 bg-white shadow-inner">
+                    @php
+                        $pdfStreamUrl = route('books.stream', $book->id);
+                        // If running on production HTTPS, use Google Docs viewer for guaranteed mobile inline rendering
+                        $isProduction = config('app.env') === 'production';
+                        $googleViewerUrl = 'https://docs.google.com/viewer?url=' . urlencode($pdfStreamUrl) . '&embedded=true';
+                    @endphp
+
+                    @if($isProduction)
+                        <!-- Mobile Friendly Google Inline Viewer for Production -->
+                        <iframe 
+                            src="{{ $googleViewerUrl }}" 
+                            class="w-full h-full border-0"
+                            allowfullscreen>
+                        </iframe>
+                    @else
+                        <!-- Direct Stream Viewer for Local Development -->
+                        <iframe 
+                            src="{{ $pdfStreamUrl }}#toolbar=1&navpanes=0" 
+                            class="w-full h-full border-0"
+                            type="application/pdf">
+                        </iframe>
+                    @endif
                 </div>
             </div>
         @else
