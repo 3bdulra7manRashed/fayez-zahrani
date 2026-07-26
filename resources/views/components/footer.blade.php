@@ -1,31 +1,27 @@
-<footer class="mt-10 border-t border-border bg-white">
-    <div class="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-4 py-6 text-[13px] text-text-secondary sm:px-6 lg:px-9">
-        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <a href="{{ route('home') }}" class="inline-flex items-center gap-3 text-primary">
-                <span class="flex h-9 w-10 items-center justify-center">
-                    <svg viewBox="0 0 64 48" fill="none" class="h-9 w-10" aria-hidden="true">
-                        <path d="M7 12c11 0 18 4 23 12v18C23 34 15 31 7 31V12Z" fill="#f2ead8" stroke="currentColor" stroke-width="2"/>
-                        <path d="M57 12c-11 0-18 4-23 12v18c7-8 15-11 23-11V12Z" fill="#f7f3e8" stroke="currentColor" stroke-width="2"/>
-                        <path d="M32 23v20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+<footer class="bg-white border-t border-slate-100 py-8 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <!-- Logo & Title Section -->
+        <div class="flex flex-col items-center justify-center gap-2 mb-4">
+            <a href="{{ route('home') }}" class="inline-flex items-center gap-3 group">
+                <h2 class="text-xl font-black text-slate-800 group-hover:text-[#1F5D43] transition">
+                    مكتبة فايز الزهراني
+                </h2>
+                <div class="w-9 h-9 rounded-xl bg-[#1F5D43]/10 text-[#1F5D43] flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
-                </span>
-                <span>
-                    <span class="block text-[16px] font-extrabold">مكتبة فايز الزهراني</span>
-                    <span class="block text-[12px] font-medium text-text-secondary">للقراءة والتحميل المباشر</span>
-                </span>
+                </div>
             </a>
-
-            <nav aria-label="روابط التذييل">
-                <ul class="flex flex-wrap items-center gap-x-5 gap-y-2 font-semibold">
-                    <li><a href="{{ route('home') }}#books" class="transition hover:text-primary">الكتب</a></li>
-                    <li><a href="{{ route('home') }}#about" class="transition hover:text-primary">عن الشيخ</a></li>
-                    <li><a href="{{ route('home') }}#contact" class="transition hover:text-primary">تواصل</a></li>
-                </ul>
-            </nav>
+            <p class="text-xs text-slate-500 font-semibold tracking-wide">
+                للقراءة والتحميل المباشر
+            </p>
         </div>
 
-        <div class="flex flex-col gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <p>© {{ now()->year }} جميع الحقوق محفوظة.</p>
+        <!-- Divider & Copyright Notice -->
+        <div class="pt-4 border-t border-slate-100 max-w-sm mx-auto">
+            <p class="text-xs text-slate-400 font-medium">
+                &copy; {{ date('Y') }} جميع الحقوق محفوظة.
+            </p>
         </div>
     </div>
 </footer>

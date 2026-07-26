@@ -86,9 +86,6 @@
 
                 const syncFields = () => {
                     const fullNum = iti.getNumber();
-                    const rawVal = input.value.trim();
-                    const valToSync = (fullNum && fullNum.length > 0) ? fullNum : rawVal;
-
                     const countryData = iti.getSelectedCountryData();
                     const dialCode = countryData && countryData.dialCode ? '+' + countryData.dialCode : '+966';
 
@@ -96,7 +93,7 @@
                     const hiddenCountry = document.querySelector("#country_code_hidden");
 
                     if (hiddenPhone) {
-                        hiddenPhone.value = valToSync;
+                        hiddenPhone.value = fullNum;
                         hiddenPhone.dispatchEvent(new Event('input'));
                     }
                     if (hiddenCountry) {
