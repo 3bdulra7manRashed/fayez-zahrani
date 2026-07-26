@@ -96,6 +96,11 @@
                                     <a href="mailto:{{ $msg->email }}" class="text-caption text-text-secondary hover:text-primary transition-colors dir-ltr block text-right">
                                         {{ $msg->email }}
                                     </a>
+                                    @if($msg->phone)
+                                        <a href="https://wa.me/{{ preg_replace('/[^\d]/', '', $msg->phone) }}" target="_blank" class="text-caption text-success hover:underline font-mono dir-ltr block text-right mt-0.5">
+                                            📱 {{ $msg->phone }}
+                                        </a>
+                                    @endif
                                 </div>
                             </td>
 

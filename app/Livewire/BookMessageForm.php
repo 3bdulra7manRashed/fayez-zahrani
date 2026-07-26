@@ -15,6 +15,8 @@ class BookMessageForm extends Component
     public Book $book;
     public string $name = '';
     public string $email = '';
+    public string $phone = '';
+    public string $country_code = '+966';
     public string $message = '';
     public string $honeypot = '';
     public string $successMessage = '';
@@ -22,6 +24,8 @@ class BookMessageForm extends Component
     protected array $rules = [
         'name' => 'required|string|max:255',
         'email' => 'required|email|max:255',
+        'phone' => 'nullable|string|max:20',
+        'country_code' => 'nullable|string|max:10',
         'message' => 'required|string|min:10',
     ];
 
@@ -56,6 +60,8 @@ class BookMessageForm extends Component
             'book_id' => $this->book->id,
             'name' => $this->name,
             'email' => $this->email,
+            'phone' => $this->phone ?: null,
+            'country_code' => $this->country_code ?: '+966',
             'message' => $this->message,
         ]);
 
@@ -73,6 +79,8 @@ class BookMessageForm extends Component
     {
         $this->name = '';
         $this->email = '';
+        $this->phone = '';
+        $this->country_code = '+966';
         $this->message = '';
         $this->honeypot = '';
     }

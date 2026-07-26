@@ -14,6 +14,8 @@ class BookMessage extends Model
         'book_id',
         'name',
         'email',
+        'phone',
+        'country_code',
         'message',
         'is_read',
     ];
