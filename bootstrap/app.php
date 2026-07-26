@@ -19,6 +19,14 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
+            fn (Request $request) => $request->is('api/*') || $request->is('livewire/*') || $request->hasHeader('X-Livewire'),
         );
+
+        $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, Request $request) {
+            if ($request->is('livewire/*') || $request->hasHeader('X-Livewire')) {
+                return response()->json([
+                    'message' => 'حجم الملف المرفوع يتجاوز الحد المسموح به في إعدادات السيرفر (post_max_size).',
+                ], 413);
+            }
+        });
     })->create();
