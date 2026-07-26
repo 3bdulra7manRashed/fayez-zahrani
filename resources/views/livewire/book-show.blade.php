@@ -69,15 +69,33 @@
                     <p class="mt-5 max-w-[940px] whitespace-pre-line text-[15px] leading-9 text-text-secondary">{{ $book->description }}</p>
                 @endif
 
-                <div class="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                    @foreach($meta as $item)
-                        @if($item['value'])
-                            <div class="rounded-lg border border-border bg-[#fbfcf8] p-4">
-                                <span class="block text-[12px] font-bold text-text-secondary">{{ $item['label'] }}</span>
-                                <strong class="mt-1 block text-[14px] leading-7 text-text-primary">{{ $item['value'] }}</strong>
-                            </div>
+                <!-- Professional Compact Single-Line Book Spec Bar -->
+                <div class="my-5 py-3.5 px-4 bg-slate-50/80 border-y border-slate-200/70 text-center text-slate-700 text-xs md:text-sm font-medium">
+                    <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+                        @if($book->edition)
+                            <span>الطبعة: <strong class="font-bold text-slate-900">{{ $book->edition }}</strong></span>
                         @endif
-                    @endforeach
+
+                        @if($book->pages_count)
+                            <span class="text-slate-300 font-light mx-0.5">|</span>
+                            <span>عدد الصفحات: <strong class="font-bold text-slate-900">{{ $book->pages_count }} صفحة</strong></span>
+                        @endif
+
+                        @if($book->size || $book->dimensions)
+                            <span class="text-slate-300 font-light mx-0.5">|</span>
+                            <span>حجم الكتاب: <strong class="font-bold text-slate-900">{{ $book->size ?? $book->dimensions }}</strong></span>
+                        @endif
+
+                        @if($book->publisher)
+                            <span class="text-slate-300 font-light mx-0.5">|</span>
+                            <span>الناشر: <strong class="font-bold text-slate-900">{{ $book->publisher }}</strong></span>
+                        @endif
+                    </div>
+
+                    <!-- Copyright / Notice Line -->
+                    <p class="text-[11px] md:text-xs text-slate-400 mt-1.5 font-normal">
+                        لا يسمح بطباعته لأغراض تجارية إلا بعد الموافقة الخطية.
+                    </p>
                 </div>
             </article>
         </div>
