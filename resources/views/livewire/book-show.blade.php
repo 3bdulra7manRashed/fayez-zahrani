@@ -57,21 +57,17 @@
 
             <!-- Book Information Column -->
             <article class="rounded-xl border border-border bg-white p-6 shadow-[0_18px_42px_-36px_rgba(31,93,67,0.75)] lg:p-8">
-                <div class="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-5">
-                    <div>
-                        <p class="text-[13px] font-bold text-secondary">تفاصيل الكتاب</p>
-                        <h1 class="mt-2 max-w-[850px] text-[30px] font-extrabold leading-[1.35] text-primary sm:text-[40px]">{{ $book->title }}</h1>
-                    </div>
-                    <span class="rounded-full bg-teal-tint px-4 py-2 text-[12px] font-bold text-primary">متاح للقراءة والتحميل</span>
-                </div>
+                <h1 class="text-2xl md:text-4xl font-black text-slate-900 leading-tight mb-4">{{ $book->title }}</h1>
 
                 @if($book->description)
-                    <p class="mt-5 max-w-[940px] whitespace-pre-line text-[15px] leading-9 text-text-secondary">{{ $book->description }}</p>
+                    <p class="whitespace-pre-line text-slate-700 text-sm md:text-base leading-relaxed md:leading-loose text-justify font-medium mb-6">{{ $book->description }}</p>
                 @endif
 
-                <!-- Professional Compact Single-Line Book Spec Bar -->
-                <div class="my-5 py-3.5 px-4 bg-slate-50/80 border-y border-slate-200/70 text-center text-slate-700 text-xs md:text-sm font-medium">
-                    <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+                <hr class="border-slate-200/80 my-6">
+
+                <!-- Clean Unboxed Book Metadata & Copyright -->
+                <div class="pt-2 text-slate-700 text-xs md:text-sm font-medium">
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
                         @if($book->edition)
                             <span>الطبعة: <strong class="font-bold text-slate-900">{{ $book->edition }}</strong></span>
                         @endif
@@ -92,8 +88,7 @@
                         @endif
                     </div>
 
-                    <!-- Copyright / Notice Line -->
-                    <p class="text-[11px] md:text-xs text-slate-400 mt-1.5 font-normal">
+                    <p class="text-[11px] md:text-xs text-slate-400 mt-2 font-normal">
                         لا يسمح بطباعته لأغراض تجارية إلا بعد الموافقة الخطية.
                     </p>
                 </div>
