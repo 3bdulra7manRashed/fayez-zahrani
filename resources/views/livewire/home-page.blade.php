@@ -22,13 +22,13 @@
 @endphp
 
 <div class="bg-[#fbfcf8] pb-10">
-    <!-- Clean Minimalist Hero Banner -->
+    <!-- Full-bleed Hero Banner Block -->
     <section class="my-6 md:my-8 max-w-5xl mx-auto px-4">
-        <div class="bg-gradient-to-b from-emerald-50/60 to-white border border-emerald-100/60 rounded-3xl p-6 md:p-10 text-center shadow-sm">
-            <a href="{{ route('home') }}" class="inline-block transition-transform hover:scale-[1.01]">
+        <div class="bg-white border border-emerald-100/80 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition">
+            <a href="{{ route('home') }}" class="block w-full h-full">
                 <img src="{{ asset('images/hero-logo.png') }}" 
                      alt="مكتبة الشيخ فايز بن سعيد الزهراني" 
-                     class="max-h-48 md:max-h-60 w-auto mx-auto object-contain drop-shadow-sm">
+                     class="w-full h-auto max-h-[380px] md:max-h-[450px] object-cover object-center block">
             </a>
         </div>
     </section>
