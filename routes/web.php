@@ -49,7 +49,7 @@ Route::get('/admin/login', AdminLogin::class)
 // Admin Protected Routes
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/', AdminDashboard::class)->name('dashboard');
-    Route::get('/books', AdminBooksIndex::class)->name('books.index');
+    Route::resource('books', \App\Http\Controllers\Admin\BookController::class);
     Route::get('/messages', AdminMessagesIndex::class)->name('messages.index');
 
     Route::post('/logout', function () {
