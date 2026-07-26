@@ -109,7 +109,7 @@ class PdfViewerTest extends TestCase
         $this->assertEquals(6, $book->fresh()->downloads_count);
     }
 
-    public function test_view_pdf_route_returns_inline_pdf(): void
+    public function test_stream_pdf_route_returns_inline_pdf(): void
     {
         Storage::fake('public');
 
@@ -121,7 +121,7 @@ class PdfViewerTest extends TestCase
             'pdf_path' => $storedPath,
         ]);
 
-        $response = $this->get(route('books.view-pdf', $book->id));
+        $response = $this->get(route('books.stream', $book->id));
 
         $response->assertStatus(200);
         $response->assertHeader('content-type', 'application/pdf');
@@ -129,7 +129,7 @@ class PdfViewerTest extends TestCase
         $this->assertStringContainsString('inline', $response->headers->get('content-disposition'));
     }
 
-    public function test_view_pdf_route_returns_404_when_no_pdf(): void
+    public function test_stream_pdf_route_returns_404_when_no_pdf(): void
     {
         Storage::fake('public');
 
@@ -137,7 +137,7 @@ class PdfViewerTest extends TestCase
             'pdf_path' => 'books/missing.pdf',
         ]);
 
-        $this->get(route('books.view-pdf', $book->id))
+        $this->get(route('books.stream', $book->id))
             ->assertStatus(404);
     }
 }

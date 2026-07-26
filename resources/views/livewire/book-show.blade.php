@@ -105,19 +105,11 @@
                         rendering: false,
 
                         async init() {
-                            // Wait for page to fully load so PHP dev server is free
-                            await new Promise(resolve => {
-                                if (document.readyState === 'complete') resolve();
-                                else window.addEventListener('load', resolve, { once: true });
-                            });
-                            await new Promise(resolve => setTimeout(resolve, 500));
                             try {
                                 const pdfjsLib = await this.loadPdfJs();
-                                const response = await fetch('/storage/{{ $book->pdf_path }}');
-                                if (!response.ok) throw new Error('HTTP ' + response.status);
-                                const arrayBuffer = await response.arrayBuffer();
-                                if (arrayBuffer.byteLength === 0) throw new Error('Empty PDF file');
-                                this.pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                                const pdfUrl = '/storage/{{ $book->pdf_path }}';
+                                const loadingTask = pdfjsLib.getDocument(pdfUrl);
+                                this.pdfDoc = await loadingTask.promise;
                                 this.totalPages = this.pdfDoc.numPages;
                                 this.loading = false;
                                 await this.renderPage(this.currentPage);
@@ -135,21 +127,17 @@
                                     return;
                                 }
                                 const script = document.createElement('script');
-                                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs';
-                                script.type = 'module';
-
-                                const script2 = document.createElement('script');
-                                script2.textContent = `
-                                    import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs').then(pdfjsLib => {
-                                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
-                                        window.pdfjsLib = pdfjsLib;
-                                        document.dispatchEvent(new Event('pdfjs-ready'));
-                                    });
-                                `;
-                                script2.type = 'module';
-                                document.head.appendChild(script2);
-
-                                document.addEventListener('pdfjs-ready', () => resolve(window.pdfjsLib), { once: true });
+                                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+                                script.onload = () => {
+                                    if (window.pdfjsLib) {
+                                        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                                        resolve(window.pdfjsLib);
+                                    } else {
+                                        reject(new Error('PDF.js failed to load'));
+                                    }
+                                };
+                                script.onerror = () => reject(new Error('Failed to load PDF.js script'));
+                                document.head.appendChild(script);
                                 setTimeout(() => reject(new Error('PDF.js load timeout')), 15000);
                             });
                         },
