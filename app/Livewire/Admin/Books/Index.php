@@ -56,11 +56,11 @@ class Index extends Component
         ];
 
         if ($this->editingBookId) {
-            $rules['new_cover'] = 'nullable|image|mimes:webp,jpg,jpeg,png|max:5120';
-            $rules['new_pdf'] = 'nullable|mimes:pdf|max:51200';
+            $rules['new_cover'] = 'nullable|file|max:5120';
+            $rules['new_pdf'] = 'nullable|file|max:51200';
         } else {
-            $rules['new_cover'] = 'required|image|mimes:webp,jpg,jpeg,png|max:5120';
-            $rules['new_pdf'] = 'required|mimes:pdf|max:51200';
+            $rules['new_cover'] = 'required|file|max:5120';
+            $rules['new_pdf'] = 'required|file|max:51200';
         }
 
         return $rules;
@@ -90,6 +90,16 @@ class Index extends Component
         if (!$this->editingBookId || empty($this->slug)) {
             $this->slug = $this->generateArabicSlug($value);
         }
+    }
+
+    public function updatedNewCover(): void
+    {
+        $this->validateOnly('new_cover');
+    }
+
+    public function updatedNewPdf(): void
+    {
+        $this->validateOnly('new_pdf');
     }
 
     public function generateArabicSlug(string $title): string
@@ -159,18 +169,28 @@ class Index extends Component
 
             $coverPath = $book->cover_path;
             if ($this->new_cover) {
+                $storedCover = $this->new_cover->store('books/covers', 'public');
+                if (!$storedCover || !Storage::disk('public')->exists($storedCover)) {
+                    $this->addError('new_cover', 'حدث خطأ أثناء رفع صورة الغلاف، يرجى المحاولة مرة أخرى.');
+                    return;
+                }
                 if ($book->cover_path && Storage::disk('public')->exists($book->cover_path)) {
                     Storage::disk('public')->delete($book->cover_path);
                 }
-                $coverPath = $this->new_cover->store('books', 'public');
+                $coverPath = $storedCover;
             }
 
             $pdfPath = $book->pdf_path;
             if ($this->new_pdf) {
+                $storedPdf = $this->new_pdf->store('books/pdfs', 'public');
+                if (!$storedPdf || !Storage::disk('public')->exists($storedPdf)) {
+                    $this->addError('new_pdf', 'حدث خطأ أثناء رفع ملف الـ PDF، يرجى المحاولة مرة أخرى.');
+                    return;
+                }
                 if ($book->pdf_path && Storage::disk('public')->exists($book->pdf_path)) {
                     Storage::disk('public')->delete($book->pdf_path);
                 }
-                $pdfPath = $this->new_pdf->store('books', 'public');
+                $pdfPath = $storedPdf;
             }
 
             $book->update([
@@ -188,8 +208,23 @@ class Index extends Component
 
             session()->flash('message', 'تم تحديث بيانات الكتاب بنجاح.');
         } else {
-            $coverPath = $this->new_cover->store('books', 'public');
-            $pdfPath = $this->new_pdf->store('books', 'public');
+            $coverPath = null;
+            if ($this->new_cover) {
+                $coverPath = $this->new_cover->store('books/covers', 'public');
+                if (!$coverPath || !Storage::disk('public')->exists($coverPath)) {
+                    $this->addError('new_cover', 'حدث خطأ أثناء رفع صورة الغلاف، يرجى المحاولة مرة أخرى.');
+                    return;
+                }
+            }
+
+            $pdfPath = null;
+            if ($this->new_pdf) {
+                $pdfPath = $this->new_pdf->store('books/pdfs', 'public');
+                if (!$pdfPath || !Storage::disk('public')->exists($pdfPath)) {
+                    $this->addError('new_pdf', 'حدث خطأ أثناء رفع ملف الـ PDF، يرجى المحاولة مرة أخرى.');
+                    return;
+                }
+            }
 
             Book::create([
                 'title' => $this->title,

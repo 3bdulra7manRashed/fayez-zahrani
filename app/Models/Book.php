@@ -39,7 +39,11 @@ class Book extends Model
      */
     public function getPdfUrlAttribute(): string
     {
-        return $this->pdf_path ? Storage::url($this->pdf_path) : '';
+        if (!$this->pdf_path) {
+            return '';
+        }
+
+        return asset('storage/' . $this->pdf_path);
     }
 
     /**

@@ -6,13 +6,37 @@ use App\Livewire\Admin\Login as AdminLogin;
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Admin\Books\Index as AdminBooksIndex;
 use App\Livewire\Admin\Messages\Index as AdminMessagesIndex;
+use App\Models\Book;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 // Public Routes
 Route::get('/', HomePage::class)->name('home');
 Route::redirect('/books', '/#books')->name('books.index');
 Route::get('/books/{slug}', BookShow::class)->name('book.show');
+
+Route::get('/books/{book}/download', function (Book $book) {
+    if (!$book->pdf_path || !Storage::disk('public')->exists($book->pdf_path)) {
+        abort(404);
+    }
+    $filename = $book->title ? $book->title . '.pdf' : basename($book->pdf_path);
+    return Storage::disk('public')->download($book->pdf_path, $filename);
+})->name('books.download');
+
+// Serve PDF inline for browser viewing (supports Range requests for Chrome PDFium)
+Route::get('/books/{book}/view-pdf', function (Book $book) {
+    if (!$book->pdf_path || !Storage::disk('public')->exists($book->pdf_path)) {
+        abort(404);
+    }
+    $path = Storage::disk('public')->path($book->pdf_path);
+    return response()->file($path, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="' . ($book->title ?: 'book') . '.pdf"',
+        'Accept-Ranges' => 'bytes',
+        'Cache-Control' => 'public, max-age=3600',
+    ]);
+})->name('books.view-pdf');
 
 Route::redirect('/login', '/admin/login')->name('login');
 

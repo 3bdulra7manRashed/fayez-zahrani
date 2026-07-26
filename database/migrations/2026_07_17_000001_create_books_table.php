@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('dimensions')->nullable();
             $table->string('publisher')->nullable();
             $table->date('published_at')->nullable();
-            $table->string('cover_path');
-            $table->string('pdf_path');
+            $table->string('cover_path')->nullable();
+            $table->string('pdf_path')->nullable();
             $table->unsignedBigInteger('views_count')->default(0);
             $table->unsignedBigInteger('downloads_count')->default(0);
             $table->timestamps();

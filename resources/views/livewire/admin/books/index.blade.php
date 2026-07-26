@@ -177,6 +177,17 @@
 
                 <!-- Modal Form -->
                 <form wire:submit.prevent="save" class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+                    @if ($errors->any())
+                        <div class="p-4 rounded-xl bg-danger/10 border border-danger/20 text-danger text-body-small">
+                            <p class="font-bold mb-1">يرجى تصحيح الأخطاء التالية:</p>
+                            <ul class="list-disc list-inside space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Title -->
                         <div class="md:col-span-2">
@@ -256,13 +267,10 @@
                             <!-- Preview Cover -->
                             <div class="mt-3">
                                 @if ($new_cover)
+                                    <span class="text-caption text-success font-semibold">تم اختيار صورة الغلاف: {{ $new_cover->getClientOriginalName() }}</span>
+                                @elseif ($editingBookId && $existing_cover_path)
                                     <div class="flex items-center gap-3">
-                                        <img src="{{ $new_cover->temporaryUrl() }}" class="w-16 h-20 object-cover rounded-lg border border-border shadow-xs">
-                                        <span class="text-caption text-success font-semibold">معاينة الصورة الجديدة</span>
-                                    </div>
-                                @elseif ($existing_cover_path)
-                                    <div class="flex items-center gap-3">
-                                        <img src="{{ Storage::url($existing_cover_path) }}" class="w-16 h-20 object-cover rounded-lg border border-border shadow-xs">
+                                        <img src="{{ asset('storage/' . $existing_cover_path) }}" class="w-16 h-20 object-cover rounded-lg border border-border shadow-xs">
                                         <span class="text-caption text-text-secondary">الغلاف الحالي</span>
                                     </div>
                                 @endif

@@ -1,18 +1,13 @@
-@php
-    $readerPdfPath = $book->pdf_url;
-
-    $meta = [
-        ['label' => 'الطبعة', 'value' => $book->edition],
-        ['label' => 'عدد الصفحات', 'value' => $book->pages_count ? number_format($book->pages_count) . ' صفحة' : null],
-        ['label' => 'المقاس', 'value' => $book->dimensions],
-        ['label' => 'الناشر', 'value' => $book->publisher],
-        ['label' => 'تاريخ النشر', 'value' => $book->published_at?->format('Y-m-d')],
-    ];
-@endphp
-
 <div class="bg-[#fbfcf8] pb-12">
-    <!-- Local PDF.js Static Build -->
-    <script src="{{ asset('vendor/pdfjs/pdf.min.js') }}"></script>
+    @php
+        $meta = [
+            ['label' => 'الطبعة', 'value' => $book->edition],
+            ['label' => 'عدد الصفحات', 'value' => $book->pages_count ? number_format($book->pages_count) . ' صفحة' : null],
+            ['label' => 'المقاس', 'value' => $book->dimensions],
+            ['label' => 'الناشر', 'value' => $book->publisher],
+            ['label' => 'تاريخ النشر', 'value' => $book->published_at?->format('Y-m-d')],
+        ];
+    @endphp
 
     <!-- Book Details Section -->
     <section class="mx-auto max-w-[1360px] px-4 py-6 sm:px-6 lg:px-9">
@@ -88,19 +83,180 @@
         </div>
     </section>
 
-    <!-- PDF Reader Section -->
+    <!-- PDF Reader Section (PDF.js Canvas Renderer) -->
     <section id="reader" class="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-9">
-        <div class="mb-3 flex items-center justify-between">
-            <h2 class="flex items-center gap-2 text-[18px] font-extrabold text-primary">
-                تصفح الكتاب مباشرة
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5" aria-hidden="true">
-                    <path d="M2 4h7a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/>
-                    <path d="M22 4h-7a4 4 0 0 1 4 4v12a3 3 0 0 1 3-3h8z"/>
-                </svg>
-            </h2>
-        </div>
+        <div class="my-8 bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-sm">
+            <div class="flex items-center justify-between mb-4 px-2">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <span>📖</span> تصفح الكتاب مباشرة
+                </h3>
+                <livewire:download-button :book="$book" />
+            </div>
 
-        <x-pdf-reader :url="$readerPdfPath" :title="$book->title" />
+            @if($book->pdf_path && $book->pdf_url)
+                <div
+                    x-data="{
+                        pdfDoc: null,
+                        currentPage: 1,
+                        totalPages: 0,
+                        loading: true,
+                        error: false,
+                        scale: 1.5,
+                        rendering: false,
+
+                        async init() {
+                            // Wait for page to fully load so PHP dev server is free
+                            await new Promise(resolve => {
+                                if (document.readyState === 'complete') resolve();
+                                else window.addEventListener('load', resolve, { once: true });
+                            });
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                            try {
+                                const pdfjsLib = await this.loadPdfJs();
+                                const response = await fetch('/storage/{{ $book->pdf_path }}');
+                                if (!response.ok) throw new Error('HTTP ' + response.status);
+                                const arrayBuffer = await response.arrayBuffer();
+                                if (arrayBuffer.byteLength === 0) throw new Error('Empty PDF file');
+                                this.pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                                this.totalPages = this.pdfDoc.numPages;
+                                this.loading = false;
+                                await this.renderPage(this.currentPage);
+                            } catch (e) {
+                                console.error('PDF Load Error:', e);
+                                this.loading = false;
+                                this.error = true;
+                            }
+                        },
+
+                        loadPdfJs() {
+                            return new Promise((resolve, reject) => {
+                                if (window.pdfjsLib) {
+                                    resolve(window.pdfjsLib);
+                                    return;
+                                }
+                                const script = document.createElement('script');
+                                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs';
+                                script.type = 'module';
+
+                                const script2 = document.createElement('script');
+                                script2.textContent = `
+                                    import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs').then(pdfjsLib => {
+                                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
+                                        window.pdfjsLib = pdfjsLib;
+                                        document.dispatchEvent(new Event('pdfjs-ready'));
+                                    });
+                                `;
+                                script2.type = 'module';
+                                document.head.appendChild(script2);
+
+                                document.addEventListener('pdfjs-ready', () => resolve(window.pdfjsLib), { once: true });
+                                setTimeout(() => reject(new Error('PDF.js load timeout')), 15000);
+                            });
+                        },
+
+                        async renderPage(num) {
+                            if (!this.pdfDoc || this.rendering) return;
+                            this.rendering = true;
+                            try {
+                                const page = await this.pdfDoc.getPage(num);
+                                const canvas = this.$refs.canvas;
+                                const ctx = canvas.getContext('2d');
+                                const viewport = page.getViewport({ scale: this.scale });
+                                canvas.height = viewport.height;
+                                canvas.width = viewport.width;
+                                await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+                            } catch (e) {
+                                console.error('Render error:', e);
+                            }
+                            this.rendering = false;
+                        },
+
+                        async prevPage() {
+                            if (this.currentPage <= 1) return;
+                            this.currentPage--;
+                            await this.renderPage(this.currentPage);
+                            this.$refs.viewer.scrollTop = 0;
+                        },
+
+                        async nextPage() {
+                            if (this.currentPage >= this.totalPages) return;
+                            this.currentPage++;
+                            await this.renderPage(this.currentPage);
+                            this.$refs.viewer.scrollTop = 0;
+                        },
+
+                        async goToPage(e) {
+                            let num = parseInt(e.target.value);
+                            if (isNaN(num) || num < 1) num = 1;
+                            if (num > this.totalPages) num = this.totalPages;
+                            this.currentPage = num;
+                            await this.renderPage(this.currentPage);
+                        }
+                    }"
+                >
+                    {{-- Loading State --}}
+                    <div x-show="loading" class="flex items-center justify-center h-[600px] bg-white rounded-xl border border-slate-200">
+                        <div class="text-center text-slate-500">
+                            <svg class="animate-spin h-10 w-10 mx-auto mb-4 text-[#1F5D43]" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p class="text-base font-bold text-slate-700">جاري تحميل الكتاب...</p>
+                            <p class="text-sm text-slate-400 mt-1">يرجى الانتظار قليلاً</p>
+                        </div>
+                    </div>
+
+                    {{-- Error State --}}
+                    <div x-show="error" x-cloak class="flex flex-col items-center justify-center h-[400px] bg-amber-50 rounded-xl border border-amber-200">
+                        <p class="text-lg font-bold text-amber-800 mb-4">⚠️ تعذّر تحميل ملف الكتاب</p>
+                        <a href="{{ route('books.download', $book->id) }}" class="px-6 py-3 bg-[#1F5D43] text-white rounded-xl shadow font-bold hover:bg-[#174a35] transition">
+                            تحميل الكتاب مباشرة
+                        </a>
+                    </div>
+
+                    {{-- PDF Viewer --}}
+                    <div x-show="!loading && !error" x-cloak>
+                        {{-- Navigation Controls --}}
+                        <div class="flex items-center justify-center gap-3 mb-3 p-3 bg-white rounded-xl border border-slate-200">
+                            <button @click="prevPage()" :disabled="currentPage <= 1"
+                                class="px-4 py-2 rounded-lg bg-[#1F5D43] text-white text-sm font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#174a35] transition">
+                                ← السابقة
+                            </button>
+
+                            <div class="flex items-center gap-2 text-sm font-medium text-slate-700" dir="ltr">
+                                <span>Page</span>
+                                <input type="number" :value="currentPage" @change="goToPage($event)" min="1" :max="totalPages"
+                                    class="w-16 text-center px-2 py-1.5 rounded-lg border border-slate-300 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#1F5D43]/30 focus:border-[#1F5D43]">
+                                <span>of</span>
+                                <span class="font-bold" x-text="totalPages"></span>
+                            </div>
+
+                            <button @click="nextPage()" :disabled="currentPage >= totalPages"
+                                class="px-4 py-2 rounded-lg bg-[#1F5D43] text-white text-sm font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#174a35] transition">
+                                التالية →
+                            </button>
+                        </div>
+
+                        {{-- Canvas Container --}}
+                        <div x-ref="viewer" class="overflow-auto max-h-[750px] bg-slate-100 rounded-xl border border-slate-200 flex justify-center p-4">
+                            <canvas x-ref="canvas" class="shadow-lg rounded bg-white"></canvas>
+                        </div>
+
+                        {{-- Download fallback link --}}
+                        <div class="mt-3 text-center">
+                            <a href="{{ route('books.download', $book->id) }}" class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-[#1F5D43] transition font-medium">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16"/></svg>
+                                تحميل الكتاب لقراءته على جهازك
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="p-12 text-center text-amber-800 bg-amber-50 rounded-xl border border-amber-200 font-medium">
+                    ⚠️ ملف الـ PDF غير متاح حالياً أو لم يتم رفعه بشكل صحيح.
+                </div>
+            @endif
+        </div>
     </section>
 
     <!-- Related Books Section -->
@@ -111,7 +267,7 @@
                     كتب ذات صلة
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5" aria-hidden="true">
                         <path d="M2 4h7a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/>
-                        <path d="M22 4h-7a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h8z"/>
+                        <path d="M22 4h-7a4 4 0 0 1 4 4v12a3 3 0 0 1 3-3h8z"/>
                     </svg>
                 </h2>
 

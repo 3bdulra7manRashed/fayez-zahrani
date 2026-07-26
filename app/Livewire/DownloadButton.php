@@ -15,7 +15,7 @@ class DownloadButton extends Component
         // Increment downloads count directly as requested by the client
         $this->book->increment('downloads_count');
 
-        return redirect()->away($this->book->pdf_url);
+        return redirect()->route('books.download', $this->book->id);
     }
 
     public function render()
