@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\BookMessage;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,5 +29,10 @@ class AppServiceProvider extends ServiceProvider
         if (request()->is('livewire/*') || request()->hasHeader('X-Livewire')) {
             @ini_set('zlib.output_compression', 'Off');
         }
+
+        View::composer(['components.layouts.admin', 'layouts.admin*'], function ($view) {
+            $unreadCount = BookMessage::where('is_read', false)->count();
+            $view->with('unreadMessagesCount', $unreadCount);
+        });
     }
 }

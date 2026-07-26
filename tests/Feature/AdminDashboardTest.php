@@ -47,4 +47,17 @@ class AdminDashboardTest extends TestCase
             ->assertSee('كتاب جديد مميز')
             ->assertSee('مرسل جديد محترم');
     }
+
+    public function test_sidebar_displays_unread_messages_badge(): void
+    {
+        $user = User::factory()->create();
+
+        BookMessage::factory()->count(5)->create(['is_read' => false]);
+        BookMessage::factory()->count(2)->create(['is_read' => true]);
+
+        $response = $this->actingAs($user)->get(route('admin.dashboard'));
+
+        $response->assertStatus(200);
+        $response->assertSee('5');
+    }
 }
