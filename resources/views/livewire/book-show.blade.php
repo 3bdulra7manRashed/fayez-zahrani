@@ -83,47 +83,32 @@
         </div>
     </section>
 
-    <!-- PDF Reader Section (PDF.js Canvas Renderer) -->
+    <!-- Native Browser PDF Viewer (Zero JS / Direct Stream) -->
     <section id="reader" class="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-9">
         @if($book->pdf_path && $book->pdf_url)
-            <div x-data="pdfViewer('{{ route('books.stream', $book->id) }}')" class="my-6 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+            <div class="my-6 bg-slate-50 p-6 rounded-2xl border border-slate-200">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <span>📖</span> تصفح الكتاب مباشرة
                     </h3>
-                    <a href="{{ route('books.download', $book->id) }}" class="px-5 py-2.5 bg-[#1F5D43] text-white text-sm font-bold rounded-xl hover:bg-[#184C37] transition">
+                    <a href="{{ route('books.download', $book->id) }}" class="px-5 py-2.5 bg-[#1F5D43] text-white text-sm font-bold rounded-xl hover:bg-[#184C37] transition shadow-sm">
                         تحميل النسخة PDF
                     </a>
                 </div>
 
-                <!-- Loading State -->
-                <div x-show="loading" class="flex items-center justify-center h-[600px] bg-white rounded-xl border border-slate-200">
-                    <p class="text-slate-500 font-medium animate-pulse">جاري تحميل الكتاب...</p>
-                </div>
-
-                <!-- Error State -->
-                <div x-show="error" x-cloak class="p-8 text-center bg-amber-50 rounded-xl border border-amber-200 text-amber-800">
-                    <p class="font-bold mb-2">عفواً، تعذر عرض المعاينة المباشرة.</p>
-                    <a href="{{ route('books.download', $book->id) }}" class="text-sm underline font-medium">إضغط هنا لتحميل الكتاب وقراءته مباشرة</a>
-                </div>
-
-                <!-- Canvas & Toolbar -->
-                <div x-show="!loading && !error" x-cloak>
-                    <div class="flex items-center justify-center gap-4 mb-4 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                        <button @click="prevPage()" :disabled="currentPage <= 1" class="px-4 py-2 rounded-lg bg-[#1F5D43] text-white text-sm font-bold disabled:opacity-30 disabled:cursor-not-allowed">
-                            ← السابقة
-                        </button>
-                        <span class="text-sm font-bold text-slate-700">
-                            صفحة <span x-text="currentPage"></span> من <span x-text="totalPages"></span>
-                        </span>
-                        <button @click="nextPage()" :disabled="currentPage >= totalPages" class="px-4 py-2 rounded-lg bg-[#1F5D43] text-white text-sm font-bold disabled:opacity-30 disabled:cursor-not-allowed">
-                            التالية →
-                        </button>
-                    </div>
-
-                    <div class="w-full overflow-auto bg-slate-700 p-4 rounded-xl flex justify-center min-h-[700px]">
-                        <canvas x-ref="canvas" class="shadow-lg rounded bg-white max-w-full"></canvas>
-                    </div>
+                <!-- Native Browser PDF Viewer (Zero JS / Direct Stream) -->
+                <div class="w-full h-[750px] rounded-xl overflow-hidden border border-slate-200 bg-white shadow-inner">
+                    <iframe 
+                        src="{{ route('books.stream', $book->id) }}#toolbar=1&navpanes=0" 
+                        class="w-full h-full border-0"
+                        type="application/pdf">
+                        <div class="p-8 text-center text-slate-600">
+                            <p class="mb-4 font-bold">متصفحك لا يدعم المعاينة المباشرة داخل الصفحة.</p>
+                            <a href="{{ route('books.stream', $book->id) }}" target="_blank" class="px-6 py-3 bg-[#1F5D43] text-white rounded-xl font-bold inline-block shadow">
+                                فتح الكتاب في نافذة جديدة ↗
+                            </a>
+                        </div>
+                    </iframe>
                 </div>
             </div>
         @else
@@ -187,64 +172,3 @@
         </div>
     </section>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('pdfViewer', (pdfUrl) => ({
-            pdfDoc: null,
-            currentPage: 1,
-            totalPages: 0,
-            loading: true,
-            error: false,
-            scale: 1.5,
-            rendering: false,
-
-            async init() {
-                try {
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                    this.pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
-                    this.totalPages = this.pdfDoc.numPages;
-                    this.loading = false;
-                    await this.renderPage(this.currentPage);
-                } catch (e) {
-                    console.error('PDF load error:', e);
-                    this.loading = false;
-                    this.error = true;
-                }
-            },
-
-            async renderPage(num) {
-                if (!this.pdfDoc || this.rendering) return;
-                this.rendering = true;
-                try {
-                    const page = await this.pdfDoc.getPage(num);
-                    const canvas = this.$refs.canvas;
-                    const ctx = canvas.getContext('2d');
-                    const viewport = page.getViewport({ scale: this.scale });
-
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-
-                    await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-                } catch (e) {
-                    console.error('Render error:', e);
-                } finally {
-                    this.rendering = false;
-                }
-            },
-
-            async prevPage() {
-                if (this.currentPage <= 1) return;
-                this.currentPage--;
-                await this.renderPage(this.currentPage);
-            },
-
-            async nextPage() {
-                if (this.currentPage >= this.totalPages) return;
-                this.currentPage++;
-                await this.renderPage(this.currentPage);
-            }
-        }));
-    });
-</script>
