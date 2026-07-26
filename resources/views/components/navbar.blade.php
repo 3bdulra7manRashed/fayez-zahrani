@@ -23,18 +23,8 @@
         </a>
 
         <!-- Search Bar (Visual Center) -->
-        <div class="order-3 sm:order-2 w-full sm:flex-1 sm:max-w-[480px] sm:mx-6 md:mx-12">
+        <div class="order-2 sm:order-2 w-full sm:flex-1 sm:max-w-[480px] sm:mx-6 md:mx-12">
             <livewire:book-search />
-        </div>
-
-        <!-- Primary CTA (RTL end / Left) -->
-        <div class="order-2 sm:order-3 shrink-0">
-            <a 
-                href="{{ request()->routeIs('home') ? '#books' : route('home') . '#books' }}" 
-                class="inline-flex h-10 sm:h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 sm:px-5 text-[13px] sm:text-[14px] font-bold text-white shadow-[0_12px_22px_-16px_rgba(31,93,67,0.9)] transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-            >
-                تصفح الكتب
-            </a>
         </div>
     </div>
 </div>
