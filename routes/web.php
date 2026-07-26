@@ -33,6 +33,7 @@ Route::get('/books/{book}/stream', function (Book $book) {
     return response()->file($path, [
         'Content-Type' => 'application/pdf',
         'Content-Disposition' => 'inline; filename="' . rawurlencode($book->title ?: 'book') . '.pdf"',
+        'Accept-Ranges' => 'bytes',
         'Access-Control-Allow-Origin' => '*',
         'Access-Control-Allow-Methods' => 'GET, OPTIONS',
         'Cache-Control' => 'no-cache, private',

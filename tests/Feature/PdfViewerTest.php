@@ -44,7 +44,7 @@ class PdfViewerTest extends TestCase
         $this->get(route('book.show', $book->slug))
             ->assertStatus(200)
             ->assertSee('تصفح الكتاب مباشرة', false)
-            ->assertSee('/storage/' . $book->pdf_path, false);
+            ->assertSee(route('books.stream', $book->id), false);
     }
 
     public function test_book_show_page_renders_fallback_when_no_pdf(): void

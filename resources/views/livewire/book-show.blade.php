@@ -107,7 +107,7 @@
                         async init() {
                             try {
                                 const pdfjsLib = await this.loadPdfJs();
-                                const pdfUrl = '/storage/{{ $book->pdf_path }}';
+                                const pdfUrl = "{{ route('books.stream', $book->id) }}";
                                 const loadingTask = pdfjsLib.getDocument(pdfUrl);
                                 this.pdfDoc = await loadingTask.promise;
                                 this.totalPages = this.pdfDoc.numPages;
