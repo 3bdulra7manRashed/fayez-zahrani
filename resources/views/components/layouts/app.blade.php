@@ -16,13 +16,6 @@
         الانتقال إلى المحتوى الرئيسي
     </a>
 
-    <header>
-        {{ $header ?? '' }}
-        @unless(isset($header))
-            <x-navbar />
-        @endunless
-    </header>
-
     <main id="main-content" tabindex="-1" class="focus:outline-none flex-1">
         {{ $slot }}
     </main>
