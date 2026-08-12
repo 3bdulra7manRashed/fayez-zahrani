@@ -33,25 +33,7 @@
         </div>
     </section>
 
-    {{-- ── All Books: Library Section Header ── --}}
     <section id="books" class="mx-auto mt-6 max-w-[1400px] px-4 sm:px-6 lg:px-9">
-        <!-- Centered Senior UI/UX Section Header -->
-        <div class="flex items-center justify-center gap-3 md:gap-4 my-8 md:my-10 max-w-5xl mx-auto px-4">
-            <!-- Gradient Divider Right -->
-            <div class="h-[1px] flex-1 bg-gradient-to-l from-emerald-200/60 via-slate-200 to-transparent"></div>
-            
-            <!-- Center Badge -->
-            <div class="inline-flex items-center gap-2.5 px-6 py-2.5 bg-white border border-emerald-100/80 rounded-2xl shadow-xs">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#1F5D43] animate-pulse"></span>
-                <h2 class="text-lg md:text-xl font-black text-slate-800">
-                    جميع الكتب
-                </h2>
-            </div>
-            
-            <!-- Gradient Divider Left -->
-            <div class="h-[1px] flex-1 bg-gradient-to-r from-emerald-200/60 via-slate-200 to-transparent"></div>
-        </div>
-
         <div class="rounded-xl border border-border bg-white p-5 shadow-[0_18px_42px_-36px_rgba(31,93,67,0.75)]">
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 @forelse($books as $book)
