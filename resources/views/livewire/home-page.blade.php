@@ -22,15 +22,13 @@
 @endphp
 
 <div class="bg-[#fbfcf8] pb-10">
-    <!-- Clean Non-Cropped Hero Banner Block -->
-    <section class="my-6 md:my-8 max-w-5xl mx-auto px-4">
-        <div class="bg-white border border-emerald-100/80 rounded-3xl p-6 md:p-8 text-center shadow-sm">
-            <a href="{{ route('home') }}" class="block w-full">
-                <img src="{{ asset('images/hero-logo.png') }}" 
-                     alt="مكتبة الشيخ فايز بن سعيد الزهراني" 
-                     class="w-full h-auto max-h-[280px] md:max-h-[360px] object-contain mx-auto block">
-            </a>
-        </div>
+    <!-- Large Scale Hero Logo Image Block -->
+    <section class="my-6 md:my-12 max-w-6xl mx-auto px-4 text-center">
+        <a href="{{ route('home') }}" class="inline-block w-full">
+            <img src="{{ asset('images/hero-logo.png') }}" 
+                 alt="مكتبة الشيخ فايز بن سعيد الزهراني" 
+                 class="w-full h-auto max-h-[480px] md:max-h-[600px] object-contain mx-auto block drop-shadow-xs">
+        </a>
     </section>
 
     <section id="books" class="mx-auto mt-6 max-w-[1400px] px-4 sm:px-6 lg:px-9">
