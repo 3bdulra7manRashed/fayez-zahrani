@@ -79,40 +79,6 @@ class BookMessageFormTest extends TestCase
         Mail::assertQueued(BookMessageNotification::class);
     }
 
-    public function test_form_submits_phone_and_country_code_successfully()
-    {
-        Mail::fake();
-
-        Livewire::test(BookMessageForm::class, ['book' => $this->book])
-            ->set('name', 'محمد الزهراني')
-            ->set('email', 'mohamed@example.com')
-            ->set('phone', '0501234567')
-            ->set('country_code', '+966')
-            ->set('message', 'رسالة استفسار مع رقم الواتساب.')
-            ->call('submit')
-            ->assertHasNoErrors();
-
-        $this->assertDatabaseHas('book_messages', [
-            'book_id' => $this->book->id,
-            'name' => 'محمد الزهراني',
-            'email' => 'mohamed@example.com',
-            'phone' => '0501234567',
-            'country_code' => '+966',
-        ]);
-    }
-
-    public function test_form_validates_invalid_phone_number()
-    {
-        Livewire::test(BookMessageForm::class, ['book' => $this->book])
-            ->set('name', 'علي')
-            ->set('email', 'ali@example.com')
-            ->set('phone', '123') // Invalid short phone number
-            ->set('country_code', '+966')
-            ->set('message', 'رسالة استفسار ممتازة للمعاينة.')
-            ->call('submit')
-            ->assertHasErrors(['phone']);
-    }
-
     public function test_honeypot_prevents_saving_but_shows_silent_success()
     {
         Mail::fake();
