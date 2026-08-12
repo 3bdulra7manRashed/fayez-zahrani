@@ -31,18 +31,7 @@
                     @endif
                 </div>
 
-                <div class="mt-5 grid grid-cols-2 gap-3">
-                    <div class="rounded-lg border border-border bg-[#fbfcf8] p-3 text-center">
-                        <span class="block text-[12px] text-text-secondary">القراءات</span>
-                        <strong class="mt-1 block text-lg text-primary">{{ number_format($book->views_count) }}</strong>
-                    </div>
-                    <div class="rounded-lg border border-border bg-[#fbfcf8] p-3 text-center">
-                        <span class="block text-[12px] text-text-secondary">التحميلات</span>
-                        <strong class="mt-1 block text-lg text-primary">{{ number_format($book->downloads_count) }}</strong>
-                    </div>
-                </div>
-
-                <div class="mt-4">
+                <div class="mt-5">
                     <livewire:download-button :book="$book" :large="true" />
                 </div>
 

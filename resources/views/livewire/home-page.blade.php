@@ -67,10 +67,6 @@
                             <h3 class="line-clamp-2 min-h-[48px] text-center text-[14px] font-extrabold leading-6 text-text-primary">
                                 <a href="{{ route('book.show', $book->slug) }}">{{ $book->title }}</a>
                             </h3>
-                            <div class="mt-2 flex items-center justify-center gap-5 text-[12px] text-text-secondary">
-                                <span>{{ number_format($book->views_count) }} قراءة</span>
-                                <span>{{ number_format($book->downloads_count) }} تحميل</span>
-                            </div>
                             <div class="mt-auto grid grid-cols-2 gap-2 pt-3">
                                 <a href="{{ route('book.show', $book->slug) }}" class="inline-flex h-9 items-center justify-center rounded-md border border-primary/20 bg-teal-tint text-[12px] font-bold text-primary transition hover:bg-primary hover:text-white">قراءة</a>
                                 <livewire:download-button :book="$book" :key="'home-dl-'.$book->id" />
