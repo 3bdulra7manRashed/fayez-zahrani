@@ -1,26 +1,3 @@
-@php
-    $statItems = [
-        [
-            'label' => 'إجمالي الكتب',
-            'value' => number_format($stats['total_books']),
-            'hint' => 'كتاب',
-            'icon' => 'book',
-        ],
-        [
-            'label' => 'إجمالي القراءات',
-            'value' => number_format($stats['total_views']),
-            'hint' => 'قراءة',
-            'icon' => 'eye',
-        ],
-        [
-            'label' => 'إجمالي التحميلات',
-            'value' => number_format($stats['total_downloads']),
-            'hint' => 'تحميل',
-            'icon' => 'download',
-        ],
-    ];
-@endphp
-
 <div class="bg-[#fbfcf8] pb-10">
     <!-- Large Scale Hero Logo Image Block -->
     <section class="my-6 md:my-12 max-w-6xl mx-auto px-4 text-center">
@@ -66,44 +43,4 @@
             </div>
         </div>
     </section>
-
-    <!-- Overall Statistics Counters (Page Bottom) -->
-    <section id="stats" class="mx-auto mt-12 max-w-[1400px] px-4 sm:px-6 lg:px-9">
-        <div class="grid gap-3 md:grid-cols-3">
-            @foreach($statItems as $item)
-                <div class="rounded-xl border border-border bg-white p-6 shadow-[0_16px_36px_-30px_rgba(31,93,67,0.65)]">
-                    <div class="flex items-center justify-between gap-5">
-                        <div>
-                            <p class="text-[13px] text-text-secondary">{{ $item['label'] }}</p>
-                            <strong class="mt-1 block text-[28px] font-extrabold leading-tight text-text-primary">{{ $item['value'] }}</strong>
-                            <span class="text-[12px] text-text-secondary">{{ $item['hint'] }}</span>
-                        </div>
-                        <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-teal-tint text-primary">
-                            @if($item['icon'] === 'book')
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-8 w-8" aria-hidden="true">
-                                    <path d="M2 4h7a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/>
-                                    <path d="M22 4h-7a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h8z"/>
-                                </svg>
-                            @elseif($item['icon'] === 'eye')
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-8 w-8" aria-hidden="true">
-                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
-                            @elseif($item['icon'] === 'download')
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-8 w-8" aria-hidden="true">
-                                    <path d="M12 3v12m0 0-4-4m4 4 4-4M4 19h16"/>
-                                </svg>
-                            @else
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-8 w-8" aria-hidden="true">
-                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
-                                    <path d="M16 2v4M8 2v4M3 10h18"/>
-                                </svg>
-                            @endif
-                        </span>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </section>
-
 </div>
