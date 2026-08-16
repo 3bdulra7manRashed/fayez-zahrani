@@ -19,29 +19,19 @@
         </a>
 
         <div class="grid gap-4 lg:grid-cols-[330px_1fr]">
-            <!-- Sidebar: Cover & Quick Stats -->
-            <aside class="rounded-xl border border-border bg-white p-5 shadow-[0_18px_42px_-36px_rgba(31,93,67,0.75)]">
-                <div class="mx-auto w-full max-w-[230px] overflow-hidden rounded-lg border border-border bg-[#f6f4ec] shadow-[0_22px_36px_-30px_rgba(31,93,67,0.75)]">
+            <!-- Book Cover Column (Clean Without Buttons) -->
+            <aside class="flex flex-col items-center justify-center rounded-xl border border-border bg-white p-5 shadow-[0_18px_42px_-36px_rgba(31,93,67,0.75)]">
+                <div class="w-full max-w-[280px] md:max-w-[320px] rounded-2xl overflow-hidden shadow-md border border-slate-100 bg-white p-2">
                     @if($book->cover_path)
-                        <img src="{{ asset('storage/' . $book->cover_path) }}" alt="{{ $book->title }}" class="aspect-[3/4] w-full object-cover">
+                        <img src="{{ asset('storage/' . $book->cover_path) }}" 
+                             alt="{{ $book->title }}" 
+                             class="w-full h-auto rounded-xl object-cover aspect-[3/4]">
                     @else
-                        <div class="c{{ ($book->id % 8) + 1 }} flex aspect-[3/4] items-center justify-center p-6 text-center text-lg font-extrabold leading-8 text-white">
+                        <div class="c{{ ($book->id % 8) + 1 }} flex aspect-[3/4] items-center justify-center p-6 text-center text-lg font-extrabold leading-8 text-white rounded-xl">
                             {{ $book->title }}
                         </div>
                     @endif
                 </div>
-
-                <div class="mt-5">
-                    <livewire:download-button :book="$book" :large="true" />
-                </div>
-
-                <a href="#reader" class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-teal-tint px-6 py-3 text-[14px] font-extrabold text-primary transition hover:bg-primary hover:text-white">
-                    قراءة مباشرة
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5" aria-hidden="true">
-                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                </a>
             </aside>
 
             <!-- Book Information Column -->
