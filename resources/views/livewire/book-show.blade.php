@@ -1,4 +1,4 @@
-<div class="bg-[#fbfcf8] pb-12">
+<div class="bg-[#fbfcf8] pb-4 md:pb-6">
     @php
         $meta = [
             ['label' => 'الطبعة', 'value' => $book->edition],
@@ -170,7 +170,7 @@
 
 
     <!-- Message Form Section -->
-    <section id="contact" class="mx-auto mt-8 max-w-[1360px] px-4 sm:px-6 lg:px-9">
+    <section id="contact" class="mx-auto mt-6 max-w-[1360px] px-4 sm:px-6 lg:px-9 mb-6 md:mb-8">
         <div class="rounded-xl border border-border bg-white p-5 shadow-[0_18px_42px_-36px_rgba(31,93,67,0.75)]">
             <h2 class="mb-4 flex items-center gap-2 text-[18px] font-extrabold text-primary">
                 مراسلة حول هذا الكتاب

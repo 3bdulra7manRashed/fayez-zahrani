@@ -1,4 +1,4 @@
-<div class="bg-[#fbfcf8] pb-10">
+<div class="bg-[#fbfcf8] pb-4 md:pb-6">
     <!-- Large Scale Hero Logo Image Block -->
     <section class="my-6 md:my-12 max-w-6xl mx-auto px-4 text-center">
         <a href="{{ route('home') }}" class="inline-block w-full">

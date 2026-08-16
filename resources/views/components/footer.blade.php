@@ -1,5 +1,5 @@
 <!-- Centered Text-Only Footer -->
-<footer class="bg-white border-t border-slate-100 py-8 mt-16 text-center">
+<footer class="bg-white border-t border-slate-100 py-6 mt-6 md:mt-8 text-center">
     <div class="max-w-7xl mx-auto px-4">
         <div class="flex flex-col items-center justify-center gap-1 mb-3">
             <a href="{{ route('home') }}" class="inline-block">
