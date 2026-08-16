@@ -18,15 +18,7 @@ class BookShow extends Component
 
     public function render()
     {
-        $relatedBooks = Book::query()
-            ->where('id', '!=', $this->book->id)
-            ->latest()
-            ->take(4)
-            ->get();
-
-        return view('livewire.book-show', [
-            'relatedBooks' => $relatedBooks,
-        ])
+        return view('livewire.book-show')
             ->layout('components.layouts.app')
             ->title($this->book->title . ' - مكتبة فايز الزهراني');
     }

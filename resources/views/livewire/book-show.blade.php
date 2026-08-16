@@ -167,46 +167,7 @@
     </section>
 
     <!-- Related Books Section -->
-    @if(isset($relatedBooks) && $relatedBooks->isNotEmpty())
-        <section id="related-books" class="mx-auto mt-8 max-w-[1360px] px-4 sm:px-6 lg:px-9">
-            <div class="rounded-xl border border-border bg-white p-6 shadow-[0_18px_42px_-36px_rgba(31,93,67,0.75)]">
-                <h2 class="mb-5 flex items-center gap-2 text-[18px] font-extrabold text-primary">
-                    كتب ذات صلة
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5" aria-hidden="true">
-                        <path d="M2 4h7a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/>
-                        <path d="M22 4h-7a4 4 0 0 1 4 4v12a3 3 0 0 1 3-3h8z"/>
-                    </svg>
-                </h2>
 
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    @foreach($relatedBooks as $related)
-                        <article class="book-card-hover flex flex-col rounded-lg border border-border bg-white p-3 shadow-xs">
-                            <a href="{{ route('book.show', $related->slug) }}" class="mx-auto block w-[112px] overflow-hidden rounded border border-border bg-[#f6f4ec]">
-                                @if($related->cover_path)
-                                    <img src="{{ asset('storage/' . $related->cover_path) }}" alt="{{ $related->title }}" class="aspect-[3/4] w-full object-cover">
-                                @else
-                                    <div class="c{{ ($related->id % 8) + 1 }} flex aspect-[3/4] items-center justify-center p-3 text-center text-xs font-bold leading-5 text-white">
-                                        {{ $related->title }}
-                                    </div>
-                                @endif
-                            </a>
-                            <div class="mt-3 flex flex-1 flex-col">
-                                <h3 class="line-clamp-2 min-h-[48px] text-center text-[14px] font-extrabold leading-6 text-text-primary">
-                                    <a href="{{ route('book.show', $related->slug) }}" class="hover:text-primary transition">{{ $related->title }}</a>
-                                </h3>
-                                <div class="mt-auto pt-3">
-                                    <a href="{{ route('book.show', $related->slug ?? $related->id) }}" 
-                                       class="block w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-800 text-xs md:text-sm font-bold text-center rounded-xl transition-all duration-200 border border-emerald-100/60 shadow-2xs">
-                                        عرض التفاصيل
-                                    </a>
-                                </div>
-                            </div>
-                        </article>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-    @endif
 
     <!-- Message Form Section -->
     <section id="contact" class="mx-auto mt-8 max-w-[1360px] px-4 sm:px-6 lg:px-9">
