@@ -195,7 +195,8 @@
                                     <a href="{{ route('book.show', $related->slug) }}" class="hover:text-primary transition">{{ $related->title }}</a>
                                 </h3>
                                 <div class="mt-auto pt-3">
-                                    <a href="{{ route('book.show', $related->slug) }}" class="inline-flex h-9 w-full items-center justify-center rounded-md border border-primary/20 bg-teal-tint text-[12px] font-bold text-primary transition hover:bg-primary hover:text-white">
+                                    <a href="{{ route('book.show', $related->slug ?? $related->id) }}" 
+                                       class="block w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-800 text-xs md:text-sm font-bold text-center rounded-xl transition-all duration-200 border border-emerald-100/60 shadow-2xs">
                                         عرض التفاصيل
                                     </a>
                                 </div>
