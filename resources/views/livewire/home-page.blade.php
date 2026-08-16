@@ -1,17 +1,5 @@
 <div class="bg-[#fbfcf8] pb-4 md:pb-6">
-    <!-- Large Scale Hero Logo Image Block -->
-    <section class="my-6 md:my-12 max-w-6xl mx-auto px-4 text-center">
-        <a href="{{ route('home') }}" class="inline-block w-full">
-            <img src="{{ asset('images/hero-logo.png') }}" 
-                 alt="مكتبة الشيخ فايز بن سعيد الزهراني" 
-                 class="w-full h-auto max-h-[480px] md:max-h-[600px] object-contain mx-auto block drop-shadow-xs">
-        </a>
-
-        <!-- Subtitle Line under Hero Banner -->
-        <p class="text-xs md:text-sm text-slate-500 font-medium text-center mt-3 md:mt-4 tracking-wide">
-            صفحة رسمية تفاعلية تجد فيها مؤلفات فايز الزهراني، ويمكنك من هنا قراءتها وتحميلها.
-        </p>
-    </section>
+    @include('partials.hero-banner')
 
     <section id="books" class="mx-auto mt-6 max-w-[1400px] px-4 sm:px-6 lg:px-9">
         <div class="rounded-xl border border-border bg-white p-5 shadow-[0_18px_42px_-36px_rgba(31,93,67,0.75)]">

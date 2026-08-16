@@ -1,4 +1,6 @@
 <div class="bg-[#fbfcf8] pb-4 md:pb-6">
+    @include('partials.hero-banner')
+
     @php
         $meta = [
             ['label' => 'الطبعة', 'value' => $book->edition],
