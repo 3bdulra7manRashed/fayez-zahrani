@@ -22,3 +22,6 @@ database/data/*.sqlite
 docker-compose.yml
 Dockerfile
 README.md
+books
+tests
+docs

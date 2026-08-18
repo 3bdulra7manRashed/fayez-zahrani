@@ -3,11 +3,13 @@ FROM node:20-alpine AS asset-builder
 WORKDIR /app
 COPY package*.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci
-COPY . .
+COPY vite.config.js ./
+COPY resources ./resources
+COPY public ./public
 RUN npm run build
 
 # --- Stage 2: Final production image ---
-FROM php:8.3-apache
+FROM php:8.4-apache
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
