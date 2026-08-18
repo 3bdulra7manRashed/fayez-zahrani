@@ -1,18 +1,17 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    environment:
-      DB_CONNECTION: sqlite
-      DB_DATABASE: /var/www/html/database/data/database.sqlite
-    volumes:
-      - sqlite_data:/var/www/html/database/data
-      - storage_public:/var/www/html/storage/app/public
+    web:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: always
+        environment:
+            - APP_KEY=${APP_KEY:-}
+        volumes:
+            - sqlite_data:/var/www/html/database/data
+            - storage_public:/var/www/html/storage/app/public
 
 volumes:
-  sqlite_data:
-  storage_public:
+    sqlite_data:
+    storage_public:
