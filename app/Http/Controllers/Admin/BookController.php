@@ -66,7 +66,7 @@ class BookController extends Controller
 
         $slug = !empty($validated['slug'])
             ? $validated['slug']
-            : $this->generateArabicSlug($validated['title']);
+            : $this->generateTransliteratedSlug($validated['title']);
 
         $coverPath = $request->file('cover')->store('books/covers', 'public');
         $pdfPath = $request->file('pdf')->store('books/pdfs', 'public');
@@ -102,7 +102,7 @@ class BookController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:books,slug,' . $book->id,
+            'slug' => 'nullable|string|max:255|unique:books,slug,' . $book->id,
             'description' => 'required|string',
             'edition' => 'nullable|string|max:255',
             'publisher' => 'nullable|string|max:255',
@@ -139,9 +139,13 @@ class BookController extends Controller
             $pdfPath = $request->file('pdf')->store('books/pdfs', 'public');
         }
 
+        $slug = !empty($validated['slug'])
+            ? $validated['slug']
+            : $this->generateTransliteratedSlug($validated['title']);
+
         $book->update([
             'title' => $validated['title'],
-            'slug' => $validated['slug'],
+            'slug' => $slug,
             'description' => $validated['description'],
             'edition' => $validated['edition'] ?? null,
             'publisher' => $validated['publisher'] ?? null,
@@ -174,12 +178,22 @@ class BookController extends Controller
             ->with('message', 'تم حذف الكتاب بجميع ملفاته بنجاح.');
     }
 
-    protected function generateArabicSlug(string $title): string
+    protected function generateTransliteratedSlug(string $title): string
     {
-        $slug = preg_replace('/\s+/u', '-', trim($title));
-        $slug = preg_replace('/[^\p{L}\p{N}\-]+/u', '', $slug);
-        $slug = preg_replace('/-+/u', '-', $slug);
-        $slug = trim($slug, '-');
+        $charMap = [
+            'أ' => 'a', 'إ' => 'e', 'آ' => 'a', 'ا' => 'a', 'ب' => 'b', 'ت' => 't', 'ث' => 'th',
+            'ج' => 'j', 'ح' => 'h', 'خ' => 'kh', 'د' => 'd', 'ذ' => 'th', 'ر' => 'r', 'ز' => 'z',
+            'س' => 's', 'ش' => 'sh', 'ص' => 's', 'ض' => 'd', 'ط' => 't', 'ظ' => 'z', 'ع' => 'a',
+            'غ' => 'gh', 'ف' => 'f', 'ق' => 'q', 'ك' => 'k', 'ل' => 'l', 'م' => 'm', 'ن' => 'n',
+            'ه' => 'h', 'و' => 'w', 'ي' => 'y', 'ى' => 'a', 'ة' => 'h', 'ئ' => 'e', 'ؤ' => 'o', 'ء' => ''
+        ];
+
+        $transliterated = strtr($title, $charMap);
+        $slug = \Illuminate\Support\Str::slug($transliterated, '-');
+
+        if (empty($slug)) {
+            $slug = \Illuminate\Support\Str::slug($title, '-', 'en');
+        }
 
         return $slug ?: 'book-' . time();
     }

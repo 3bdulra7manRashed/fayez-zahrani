@@ -42,10 +42,10 @@
 
                     <!-- Slug -->
                     <div>
-                        <label for="slug" class="block text-body-small font-medium text-text-primary mb-1.5">الرابط الثابت (Slug) *</label>
-                        <input id="slug" name="slug" value="{{ old('slug', $book->slug) }}" type="text" required
+                        <label for="slug" class="block text-body-small font-medium text-text-primary mb-1.5">الرابط الثابت (Slug)</label>
+                        <input id="slug" name="slug" value="{{ old('slug', $book->slug) }}" type="text"
                             class="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-text-primary text-body-small font-mono focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary @error('slug') border-danger @enderror"
-                            placeholder="al-mueyar-al-murbi">
+                            placeholder="يتم توليده تلقائياً إن ترك فارغاً">
                         @error('slug') <p class="mt-1 text-caption text-danger">{{ $message }}</p> @enderror
                     </div>
 
@@ -146,3 +146,44 @@
         </div>
     </div>
 </x-layouts.admin>
+
+@push('scripts')
+<script>
+    function arabicToEnglishSlug(text) {
+        const charMap = {
+            'أ': 'a', 'إ': 'e', 'آ': 'a', 'ا': 'a', 'ب': 'b', 'ت': 't', 'ث': 'th',
+            'ج': 'j', 'ح': 'h', 'خ': 'kh', 'د': 'd', 'ذ': 'th', 'ر': 'r', 'ز': 'z',
+            'س': 's', 'ش': 'sh', 'ص': 's', 'ض': 'd', 'ط': 't', 'ظ': 'z', 'ع': 'a',
+            'غ': 'gh', 'ف': 'f', 'ق': 'q', 'ك': 'k', 'ل': 'l', 'م': 'm', 'ن': 'n',
+            'ه': 'h', 'و': 'w', 'ي': 'y', 'ى': 'a', 'ة': 'h', 'ئ': 'e', 'ؤ': 'o', 'ء': ''
+        };
+
+        return text
+            .toLowerCase()
+            .split('')
+            .map(char => charMap[char] !== undefined ? charMap[char] : char)
+            .join('')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const titleInput = document.getElementById('title') || document.querySelector('input[name="title"]');
+        const slugInput = document.getElementById('slug') || document.querySelector('input[name="slug"]');
+
+        if (titleInput && slugInput) {
+            let userEditedSlug = slugInput.value.trim() !== '';
+            slugInput.addEventListener('input', () => {
+                userEditedSlug = slugInput.value.trim() !== '';
+            });
+            titleInput.addEventListener('input', (e) => {
+                if (!userEditedSlug || slugInput.value.trim() === '') {
+                    slugInput.value = arabicToEnglishSlug(e.target.value);
+                }
+            });
+        }
+    });
+</script>
+@endpush

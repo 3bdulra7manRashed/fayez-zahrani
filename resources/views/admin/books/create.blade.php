@@ -132,3 +132,44 @@
         </div>
     </div>
 </x-layouts.admin>
+
+@push('scripts')
+<script>
+    function arabicToEnglishSlug(text) {
+        const charMap = {
+            'أ': 'a', 'إ': 'e', 'آ': 'a', 'ا': 'a', 'ب': 'b', 'ت': 't', 'ث': 'th',
+            'ج': 'j', 'ح': 'h', 'خ': 'kh', 'د': 'd', 'ذ': 'th', 'ر': 'r', 'ز': 'z',
+            'س': 's', 'ش': 'sh', 'ص': 's', 'ض': 'd', 'ط': 't', 'ظ': 'z', 'ع': 'a',
+            'غ': 'gh', 'ف': 'f', 'ق': 'q', 'ك': 'k', 'ل': 'l', 'م': 'm', 'ن': 'n',
+            'ه': 'h', 'و': 'w', 'ي': 'y', 'ى': 'a', 'ة': 'h', 'ئ': 'e', 'ؤ': 'o', 'ء': ''
+        };
+
+        return text
+            .toLowerCase()
+            .split('')
+            .map(char => charMap[char] !== undefined ? charMap[char] : char)
+            .join('')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const titleInput = document.getElementById('title') || document.querySelector('input[name="title"]');
+        const slugInput = document.getElementById('slug') || document.querySelector('input[name="slug"]');
+
+        if (titleInput && slugInput) {
+            let userEditedSlug = slugInput.value.trim() !== '';
+            slugInput.addEventListener('input', () => {
+                userEditedSlug = slugInput.value.trim() !== '';
+            });
+            titleInput.addEventListener('input', (e) => {
+                if (!userEditedSlug || slugInput.value.trim() === '') {
+                    slugInput.value = arabicToEnglishSlug(e.target.value);
+                }
+            });
+        }
+    });
+</script>
+@endpush
