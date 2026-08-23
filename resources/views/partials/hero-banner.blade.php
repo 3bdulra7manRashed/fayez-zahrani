@@ -2,7 +2,7 @@
 <section class="my-6 md:my-12 max-w-6xl mx-auto px-4 text-center">
     <a href="{{ route('home') }}" class="inline-block w-full">
         <img src="{{ asset('images/hero-logo.png') }}" 
-             alt="مكتبة الشيخ فايز بن سعيد الزهراني" 
+             alt="مكتبة فايز بن سعيد الزهراني" 
              class="w-full h-auto max-h-[480px] md:max-h-[600px] object-contain mx-auto block drop-shadow-xs">
     </a>
 

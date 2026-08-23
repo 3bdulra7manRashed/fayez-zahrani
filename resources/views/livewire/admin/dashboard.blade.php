@@ -7,7 +7,7 @@
             </span>
             <h1 class="text-heading-l sm:text-heading-xl text-text-primary font-extrabold">لوحة التحليلات والإحصاءات</h1>
             <p class="text-body text-text-secondary max-w-2xl">
-                نظام إدارة ومتابعة كتب وإحصاءات ورسائل قراء مكتبة الشيخ فايز بن سعيد الزهراني الرقمية.
+                نظام إدارة ومتابعة كتب وإحصاءات ورسائل قراء مكتبة فايز بن سعيد الزهراني الرقمية.
             </p>
         </div>
 

@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $title ?? 'لوحة التحكم - مكتبة فايز بن سعيد الزهراني' }}</title>
-    <meta name="description" content="لوحة التحكم والتنظيم الرقمية لمكتبة الشيخ فايز الزهراني">
+    <meta name="description" content="لوحة التحكم والتنظيم الرقمية لمكتبة فايز الزهراني">
 
     @stack('head')
 
@@ -40,7 +40,7 @@
                         </div>
                         <div>
                             <h2 class="text-heading-s text-text-primary leading-snug">لوحة التحكم</h2>
-                            <p class="text-caption text-text-secondary">مكتبة الشيخ فايز الزهراني</p>
+                            <p class="text-caption text-text-secondary">مكتبة فايز الزهراني</p>
                         </div>
                     </a>
 

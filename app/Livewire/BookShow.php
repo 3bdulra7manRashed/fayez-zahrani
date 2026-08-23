@@ -20,7 +20,7 @@ class BookShow extends Component
     {
         $cleanDescription = $this->book->description 
             ? \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($this->book->description))), 160)
-            : 'تصفح وقراءة وتحميل كتاب ' . $this->book->title . ' مباشرة من مكتبة الشيخ فايز بن سعيد الزهراني.';
+            : 'تصفح وقراءة وتحميل كتاب ' . $this->book->title . ' مباشرة من مكتبة فايز بن سعيد الزهراني.';
 
         $coverUrl = $this->book->cover_path 
             ? asset('storage/' . $this->book->cover_path) 
@@ -31,15 +31,15 @@ class BookShow extends Component
             'coverUrl' => $coverUrl,
         ])
             ->layout('components.layouts.app', [
-                'title' => $this->book->title . ' - مكتبة الشيخ فايز بن سعيد الزهراني',
+                'title' => $this->book->title . ' - مكتبة فايز بن سعيد الزهراني',
                 'description' => $cleanDescription,
                 'meta_description' => $cleanDescription,
-                'og_title' => $this->book->title . ' - مكتبة الشيخ فايز بن سعيد الزهراني',
+                'og_title' => $this->book->title . ' - مكتبة فايز بن سعيد الزهراني',
                 'og_description' => $cleanDescription,
                 'og_image' => $coverUrl,
                 'og_type' => 'book',
                 'canonical_url' => request()->url(),
             ])
-            ->title($this->book->title . ' - مكتبة الشيخ فايز بن سعيد الزهراني');
+            ->title($this->book->title . ' - مكتبة فايز بن سعيد الزهراني');
     }
 }
