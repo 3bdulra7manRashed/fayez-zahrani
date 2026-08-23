@@ -28,13 +28,14 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body {{ $attributes->merge(['class' => 'min-h-screen flex flex-col bg-background text-text-primary font-sans antialiased']) }}>
+<body {{ isset($attributes) ? $attributes->merge(['class' => 'min-h-screen flex flex-col bg-background text-text-primary font-sans antialiased']) : 'class="min-h-screen flex flex-col bg-background text-text-primary font-sans antialiased"' }}>
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:right-1/2 focus:translate-x-1/2 focus:z-toast focus:px-space-16 focus:py-space-8 focus:bg-primary focus:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2">
         الانتقال إلى المحتوى الرئيسي
     </a>
 
     <main id="main-content" tabindex="-1" class="focus:outline-none flex-1">
-        {{ $slot }}
+        {{ $slot ?? '' }}
+        @yield('content')
     </main>
 
     @if(isset($footer))
