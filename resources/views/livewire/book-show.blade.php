@@ -1,3 +1,31 @@
+@push('head')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Book",
+  "name": {{ json_encode($book->title) }},
+  "description": {{ json_encode($cleanDescription ?? ($book->description ? \Illuminate\Support\Str::limit(strip_tags($book->description), 160) : $book->title)) }},
+  "url": {{ json_encode(request()->url()) }},
+  "author": {
+    "@type": "Person",
+    "name": "فايز بن سعيد الزهراني"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ json_encode($book->publisher ?: 'مكتبة الشيخ فايز بن سعيد الزهراني') }}
+  },
+  @if($book->published_at)
+  "datePublished": {{ json_encode($book->published_at->format('Y-m-d')) }},
+  @endif
+  @if($book->pages_count)
+  "numberOfPages": {{ (int) $book->pages_count }},
+  @endif
+  "image": {{ json_encode($book->cover_path ? asset('storage/' . $book->cover_path) : asset('images/hero-logo.png')) }},
+  "inLanguage": "ar"
+}
+</script>
+@endpush
+
 <div class="bg-[#fbfcf8] pb-4 md:pb-6">
     @include('partials.hero-banner')
 

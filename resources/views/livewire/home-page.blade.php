@@ -1,3 +1,16 @@
+@push('head')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "مكتبة الشيخ فايز بن سعيد الزهراني",
+  "url": {{ json_encode(request()->url()) }},
+  "description": "صفحة رسمية تفاعلية تجد فيها مؤلفات الشيخ فايز بن سعيد الزهراني، للقراءة والتحميل المباشر.",
+  "inLanguage": "ar"
+}
+</script>
+@endpush
+
 <div class="bg-[#fbfcf8] pb-4 md:pb-6">
     @include('partials.hero-banner')
 
