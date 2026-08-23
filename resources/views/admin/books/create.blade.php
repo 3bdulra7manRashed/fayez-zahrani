@@ -135,8 +135,20 @@
 
 @push('scripts')
 <script>
-    function arabicToEnglishSlug(text) {
-        const charMap = {
+    function initSlugTransliterator() {
+        const titleInput = document.querySelector('input[name="title"]') || document.getElementById('title');
+        const slugInput = document.querySelector('input[name="slug"]') || document.getElementById('slug');
+
+        if (!titleInput || !slugInput) return;
+
+        let userManuallyChangedSlug = false;
+
+        // Detect if user specifically typed or edited in the slug field
+        slugInput.addEventListener('input', function() {
+            userManuallyChangedSlug = slugInput.value.trim().length > 0;
+        });
+
+        const arabicCharMap = {
             'أ': 'a', 'إ': 'e', 'آ': 'a', 'ا': 'a', 'ب': 'b', 'ت': 't', 'ث': 'th',
             'ج': 'j', 'ح': 'h', 'خ': 'kh', 'د': 'd', 'ذ': 'th', 'ر': 'r', 'ز': 'z',
             'س': 's', 'ش': 'sh', 'ص': 's', 'ض': 'd', 'ط': 't', 'ظ': 'z', 'ع': 'a',
@@ -144,32 +156,35 @@
             'ه': 'h', 'و': 'w', 'ي': 'y', 'ى': 'a', 'ة': 'h', 'ئ': 'e', 'ؤ': 'o', 'ء': ''
         };
 
-        return text
-            .toLowerCase()
-            .split('')
-            .map(char => charMap[char] !== undefined ? charMap[char] : char)
-            .join('')
-            .replace(/[^a-z0-9\s-]/g, '')
-            .trim()
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-');
-    }
+        function transliterate(str) {
+            if (!str) return '';
+            return str
+                .toLowerCase()
+                .split('')
+                .map(c => arabicCharMap[c] !== undefined ? arabicCharMap[c] : c)
+                .join('')
+                .replace(/[^a-z0-9\s-]/g, '')
+                .trim()
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+        }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const titleInput = document.getElementById('title') || document.querySelector('input[name="title"]');
-        const slugInput = document.getElementById('slug') || document.querySelector('input[name="slug"]');
-
-        if (titleInput && slugInput) {
-            let userEditedSlug = slugInput.value.trim() !== '';
-            slugInput.addEventListener('input', () => {
-                userEditedSlug = slugInput.value.trim() !== '';
-            });
-            titleInput.addEventListener('input', (e) => {
-                if (!userEditedSlug || slugInput.value.trim() === '') {
-                    slugInput.value = arabicToEnglishSlug(e.target.value);
+        // Live update on input, keyup, and change
+        ['input', 'keyup', 'change'].forEach(evt => {
+            titleInput.addEventListener(evt, function () {
+                if (!userManuallyChangedSlug) {
+                    slugInput.value = transliterate(titleInput.value);
+                    // Dispatch event in case Alpine.js or Livewire is listening
+                    slugInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
             });
-        }
-    });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSlugTransliterator);
+    } else {
+        initSlugTransliterator();
+    }
 </script>
 @endpush
