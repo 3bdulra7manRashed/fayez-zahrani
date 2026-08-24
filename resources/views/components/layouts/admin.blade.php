@@ -23,11 +23,11 @@
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
             @click="sidebarOpen = false"
-            class="fixed inset-0 z-overlay bg-text-primary/40 backdrop-blur-xs lg:hidden"
+            class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-xs lg:hidden"
             x-cloak></div>
 
         <!-- Sidebar Navigation Drawer -->
-        <aside class="fixed inset-y-0 right-0 z-sticky w-72 h-screen bg-surface border-l border-border flex flex-col justify-between transform transition-transform duration-250 ease-in-out shrink-0 lg:translate-x-0 lg:static lg:z-auto"
+        <aside class="fixed inset-y-0 right-0 z-50 w-72 h-screen bg-surface border-l border-border flex flex-col justify-between transform transition-transform duration-250 ease-in-out shrink-0 lg:translate-x-0 lg:static lg:z-auto"
             :class="sidebarOpen ? 'translate-x-0 shadow-modal' : 'translate-x-full lg:translate-x-0'">
             
             <!-- Top Section: Logo, Branding & Nav Links (Scrolls independently if needed) -->
