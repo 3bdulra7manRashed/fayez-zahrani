@@ -5,9 +5,9 @@
     <!-- Search & Books Section -->
     <section class="max-w-7xl mx-auto px-4 my-8">
         <!-- Books Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
             @forelse($books as $book)
-                <article wire:key="book-{{ $book->id }}" class="bg-white rounded-2xl border border-slate-100 shadow-2xs hover:shadow-md transition-all p-3 flex flex-col justify-between">
+                <article wire:key="book-{{ $book->id }}" class="bg-white rounded-2xl border border-slate-100 shadow-2xs hover:shadow-md transition-all p-3 flex flex-col justify-between max-w-xs mx-auto w-full sm:max-w-none">
                     <div>
                         <a href="{{ route('book.show', $book->slug ?? $book->id) }}" class="block aspect-3/4 rounded-xl overflow-hidden bg-slate-50 mb-3">
                             @if(!empty($book->cover_path))
