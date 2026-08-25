@@ -9,14 +9,14 @@
             @forelse($books as $book)
                 <article wire:key="book-{{ $book->id }}" class="w-full max-w-[280px] sm:max-w-none mx-auto bg-white rounded-2xl border border-slate-100 shadow-2xs hover:shadow-md transition-all p-3.5 md:p-5 flex flex-col justify-between">
                     <div>
-                        <!-- Book Cover Container -->
-                        <a href="{{ route('book.show', $book->slug ?? $book->id) }}" class="h-[150px] md:h-[190px] w-full flex items-center justify-center mb-3">
+                        <!-- Book Cover Frame Stage -->
+                        <a href="{{ route('book.show', $book->slug ?? $book->id) }}" class="h-[160px] md:h-[190px] w-full bg-emerald-50/30 rounded-xl flex items-center justify-center mb-3 p-2.5 transition hover:bg-emerald-50/60 group">
                             @if(!empty($book->cover_path))
                                 <img src="{{ asset('storage/' . $book->cover_path) }}" 
                                      alt="{{ $book->title }}" 
-                                     class="max-h-full max-w-[110px] md:max-w-[140px] object-contain rounded-md drop-shadow-2xs transition hover:scale-102">
+                                     class="max-h-full max-w-[115px] md:max-w-[135px] object-contain rounded-md shadow-md ring-1 ring-black/5 transition duration-300 group-hover:scale-105 group-hover:shadow-lg">
                             @else
-                                <div class="w-24 h-32 c{{ ($book->id % 8) + 1 }} rounded-md flex items-center justify-center p-3 text-center text-xs font-bold leading-5 text-white shadow-xs">
+                                <div class="w-24 h-32 c{{ ($book->id % 8) + 1 }} rounded-md flex items-center justify-center p-3 text-center text-xs font-bold leading-5 text-white shadow-md ring-1 ring-black/5 transition duration-300 group-hover:scale-105 group-hover:shadow-lg">
                                     {{ $book->title }}
                                 </div>
                             @endif
